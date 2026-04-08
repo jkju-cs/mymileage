@@ -1,0 +1,88 @@
+{
+  "identifier" : "com.jangkyuju.motivationrun.products",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "1.99",
+      "familyShareable" : false,
+      "internalID" : "001",
+      "localizations" : [
+        {
+          "description" : "Unlock custom widget backgrounds & lock screen widgets",
+          "displayName" : "MyMileage Pro",
+          "locale" : "en_US"
+        },
+        {
+          "description" : "위젯 배경 사진 커스텀 & 잠금화면 위젯 해제",
+          "displayName" : "MyMileage Pro",
+          "locale" : "ko"
+        }
+      ],
+      "productID" : "com.jangkyuju.motivationrun.pro",
+      "referenceName" : "MyMileage Pro",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_applicationInternalID" : "MotivationRun",
+    "_developerTeamID" : "",
+    "_failTransactionsEnabled" : false,
+    "_lastError" : "",
+    "_storeKitErrors" : [
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Load Products"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Purchase"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Verification"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Store Sync"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Subscription Status"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Transaction"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Manage Subscriptions Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Refund Request Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Offer Code Redeem Sheet"
+      }
+    ]
+  },
+  "subscriptionGroups" : [
+
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}
