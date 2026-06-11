@@ -4,25 +4,10 @@
 //
 
 import SwiftUI
+import UIKit
 import PhotosUI
 import StoreKit
 import WidgetKit
-
-// MARK: - Color Hex Extension
-
-extension Color {
-    init(hex: String) {
-        let h = hex.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
-        guard h.count == 6 else { self.init(.clear); return }
-        var rgb: UInt64 = 0
-        guard Scanner(string: h).scanHexInt64(&rgb) else { self.init(.clear); return }
-        self.init(
-            red:   Double((rgb >> 16) & 0xFF) / 255,
-            green: Double((rgb >> 8)  & 0xFF) / 255,
-            blue:  Double( rgb        & 0xFF) / 255
-        )
-    }
-}
 
 // MARK: - 차트 지표 탭
 
@@ -164,28 +149,6 @@ struct ContentView: View {
         return f.string(from: date)
     }
 
-    // MARK: - 이동 가능한 월 범위 (세션 데이터가 있는 범위)
-    private var availableMonths: [(year: Int, month: Int)] {
-        let cal = Calendar.current
-        var set = Set<String>()
-        var result: [(Int, Int)] = []
-        for session in allSessions {
-            let comps = cal.dateComponents([.year, .month], from: session.date)
-            let key = "\(comps.year ?? 0)-\(comps.month ?? 0)"
-            if set.insert(key).inserted {
-                result.append((comps.year ?? 0, comps.month ?? 0))
-            }
-        }
-        // 현재 월도 항상 포함
-        let nowY = cal.component(.year, from: Date())
-        let nowM = cal.component(.month, from: Date())
-        let nowKey = "\(nowY)-\(nowM)"
-        if set.insert(nowKey).inserted {
-            result.append((nowY, nowM))
-        }
-        return result.sorted { ($0.0, $0.1) < ($1.0, $1.1) }
-    }
-
     private func navigateMonth(delta: Int) {
         var comps = DateComponents()
         comps.year = selectedYear
@@ -206,76 +169,113 @@ struct ContentView: View {
     }
 
     var body: some View {
-        TabView(selection: $selectedTab) {
-            dashboardTab
-                .tabItem { Label(t(.tabDashboard), systemImage: "chart.bar.fill") }
-                .tag(0)
-            LogView(themeAccent: themeAccent, themeBackground: themeBackground,
-                    distanceUnit: distanceUnit, appLanguage: appLanguage)
-                .tabItem { Label(t(.tabLog), systemImage: "list.bullet.rectangle") }
-                .tag(1)
-            SettingsTabView(
-                storeManager: storeManager,
-                accent: $themeAccent,
-                background: $themeBackground,
-                distanceUnit: $distanceUnit,
-                notificationSettings: $notificationSettings,
-                language: $appLanguage,
-                goalType: $goalType,
-                goalTarget: $goalTarget,
-                onSettingsChanged: {
-                    rescheduleNotifications()
-                    loadData()
-                    WidgetCenter.shared.reloadAllTimelines()
-                },
-                onReset: {
-                    loadData()
-                    WidgetCenter.shared.reloadAllTimelines()
-                },
-                onSyncHealthKit: syncWithHealthKit,
-                onSetGoal: { showGoalSheet = true },
-                isSyncing: isSyncing,
-                isAuthorized: isAuthorized
+        ZStack(alignment: .bottom) {
+            // Tab content — all kept in memory to preserve scroll state
+            ZStack {
+                dashboardTab
+                    .opacity(selectedTab == 0 ? 1 : 0)
+                    .allowsHitTesting(selectedTab == 0)
+
+                LogView(themeAccent: themeAccent, themeBackground: themeBackground,
+                        distanceUnit: distanceUnit, appLanguage: appLanguage,
+                        tabBarHeight: 88)
+                    .opacity(selectedTab == 1 ? 1 : 0)
+                    .allowsHitTesting(selectedTab == 1)
+
+                CalendarView(themeAccent: themeAccent, themeBackground: themeBackground,
+                             distanceUnit: distanceUnit, appLanguage: appLanguage,
+                             allSessions: allSessions,
+                             tabBarHeight: 88)
+                    .opacity(selectedTab == 2 ? 1 : 0)
+                    .allowsHitTesting(selectedTab == 2)
+
+                SettingsTabView(
+                    storeManager: storeManager,
+                    accent: $themeAccent,
+                    background: $themeBackground,
+                    distanceUnit: $distanceUnit,
+                    notificationSettings: $notificationSettings,
+                    language: $appLanguage,
+                    goalType: $goalType,
+                    goalTarget: $goalTarget,
+                    showHelpSheet: $showHelpSheet,
+                    onSettingsChanged: {
+                        rescheduleNotifications()
+                        loadData()
+                        WidgetCenter.shared.reloadAllTimelines()
+                    },
+                    onReset: {
+                        loadData()
+                        WidgetCenter.shared.reloadAllTimelines()
+                    },
+                    onSyncHealthKit: syncWithHealthKit,
+                    onSetGoal: { showGoalSheet = true },
+                    isSyncing: isSyncing,
+                    isAuthorized: isAuthorized,
+                    tabBarHeight: 88
+                )
+                .opacity(selectedTab == 3 ? 1 : 0)
+                .allowsHitTesting(selectedTab == 3)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            // Floating pill tab bar
+            FloatingTabBar(
+                selectedTab: selectedTab,
+                isDark: themeBackground.isDark,
+                appBg: cBg,
+                cardBg: cCard,
+                primaryColor: cAccent,
+                primarySoft: cAccent.opacity(0.12),
+                inkLow: cSub,
+                onTab: { tab in
+                    withAnimation(.easeInOut(duration: 0.15)) { selectedTab = tab }
+                }
             )
-            .tabItem { Label(t(.tabSettings), systemImage: "gearshape.fill") }
-            .tag(2)
         }
-        .tint(.primary)
+        .ignoresSafeArea(edges: .bottom)
     }
 
     // MARK: - 대시보드 탭 콘텐츠
 
     private var dashboardTab: some View {
-        ZStack {
-            cBg.ignoresSafeArea()
+        NavigationView {
+            ZStack {
+                cBg.ignoresSafeArea()
 
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 16) {
-                    headerView
-                    monthNavigator
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 16) {
+                        monthNavigator
 
-                    if isCurrentMonth {
                         mileageGoalBanner
-                    }
 
-                    dailyBarChart
+                        dailyBarChart
 
-                    monthlySummaryCards
+                        monthlySummaryCards
 
-                    if isCurrentMonth, let sync = lastSync {
-                        Text("\(t(.lastSyncLabel))  \(sync.formatted(date: .abbreviated, time: .shortened))")
-                            .font(.system(size: 11))
+                        if let sync = lastSync {
+                            HStack(spacing: 4) {
+                                Image(systemName: "arrow.clockwise")
+                                    .font(.system(size: 10, weight: .medium))
+                                Text("\(t(.lastSyncLabel)) · \(sync.formatted(date: .abbreviated, time: .shortened))")
+                                    .font(.pretendard(.medium, size: 11))
+                            }
                             .foregroundColor(cSub)
-                            .padding(.bottom, 8)
+                            .padding(.bottom, 4)
+                        }
+
+                        Color.clear.frame(height: 96)
                     }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 4)
                 }
-                .padding(.horizontal, 20)
-                .padding(.top, 12)
+                .background(cBg)
             }
-        }
-        .preferredColorScheme(themeBackground.colorScheme)
-        .onAppear { loadData(); autoRefreshIfAuthorized(); fetchAllSessions() }
-        .sheet(isPresented: $showGoalSheet) {
+            .navigationTitle("Dashboard")
+            .navigationBarTitleDisplayMode(.large)
+            .preferredColorScheme(themeBackground.colorScheme)
+            .onAppear { loadData(); autoRefreshIfAuthorized(); fetchAllSessions() }
+            .sheet(isPresented: $showGoalSheet) {
             GoalSettingView(
                 goalType: goalType,
                 goalInput: "\(Int(goalTarget))",
@@ -299,100 +299,190 @@ struct ContentView: View {
         .overlay(alignment: .bottom) {
             if showToast {
                 Text(toastMessage)
-                    .font(.system(size: 14, weight: .medium))
+                    .font(.pretendard(.medium, size: 14))
                     .foregroundColor(.white)
                     .padding(.horizontal, 24)
                     .padding(.vertical, 12)
                     .background(Color.black.opacity(0.78))
                     .cornerRadius(24)
-                    .padding(.bottom, 88)
+                    .padding(.bottom, 100)
                     .transition(.opacity.combined(with: .move(edge: .bottom)))
             }
         }
         .animation(.easeInOut(duration: 0.25), value: showToast)
     }
-
-    // MARK: - 헤더
-
-    private var headerView: some View {
-        HStack {
-            Text(t(.appTitle))
-                .font(.system(size: 22, weight: .bold))
-                .foregroundColor(cText)
-            Spacer()
-            Button(action: { showHelpSheet = true }) {
-                Image(systemName: "info.circle.fill")
-                    .font(.system(size: 17, weight: .semibold))
-                    .foregroundColor(cAccent)
-                    .padding(9)
-                    .background(cAccent.opacity(0.15))
-                    .clipShape(Circle())
-            }
-        }
+    .navigationViewStyle(.stack)
     }
 
-    // MARK: - 월 네비게이터
+    // MARK: - 월 네비게이터 (HMG Card Chevrons)
+
+    private var chevronCardShadow: Color {
+        themeBackground.isDark ? .black.opacity(0.4) : Color(hex: "#0D1220").opacity(0.04)
+    }
 
     private var monthNavigator: some View {
         HStack {
+            // Left chevron card
             Button(action: { navigateMonth(delta: -1) }) {
                 Image(systemName: "chevron.left")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(cAccent)
-                    .padding(8)
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundColor(cText)
+                    .frame(width: 36, height: 36)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(cCard)
+                            .shadow(color: chevronCardShadow, radius: 2, x: 0, y: 1)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(
+                                        themeBackground.isDark ? Color.white.opacity(0.05) : Color(hex: "#0D1220").opacity(0.04),
+                                        lineWidth: 1
+                                    )
+                            )
+                    )
+            }
+            .buttonStyle(.plain)
+
+            Spacer()
+
+            // Month + date info
+            VStack(spacing: 2) {
+                Text(selectedMonthString)
+                    .font(.pretendard(.bold, size: 16))
+                    .foregroundColor(cText)
+                if isCurrentMonth {
+                    let dayStr: String = {
+                        let f = DateFormatter()
+                        f.locale = appLanguage.locale
+                        f.dateFormat = "d MMM"
+                        return f.string(from: Date())
+                    }()
+                    Text("Today · \(dayStr)")
+                        .font(.pretendard(.medium, size: 11))
+                        .foregroundColor(cSub)
+                }
             }
 
             Spacer()
 
-            Text(selectedMonthString)
-                .font(.system(size: 17, weight: .bold))
-                .foregroundColor(cText)
-
-            Spacer()
-
+            // Right chevron card (disabled when at current month)
             Button(action: { navigateMonth(delta: 1) }) {
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(canGoForward ? cAccent : cGray)
-                    .padding(8)
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundColor(canGoForward ? cText : themeBackground.inkOff)
+                    .frame(width: 36, height: 36)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(cCard)
+                            .shadow(color: chevronCardShadow, radius: 2, x: 0, y: 1)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(
+                                        themeBackground.isDark ? Color.white.opacity(0.05) : Color(hex: "#0D1220").opacity(0.04),
+                                        lineWidth: 1
+                                    )
+                            )
+                    )
             }
+            .buttonStyle(.plain)
             .disabled(!canGoForward)
         }
         .padding(.vertical, 4)
     }
 
-    // MARK: - 마일리지 목표 배너
+    // MARK: - 목표 히어로 카드 (Navy Gradient · GoalProgressRing)
+
+    private var goalProgressValue: Double {
+        switch goalType {
+        case .distance: return min(monthDisplayDistance / goalTarget, 1.0)
+        case .calories: return min(monthTotalCalories / goalTarget, 1.0)
+        case .duration: return min((monthTotalDurationMin / 60) / goalTarget, 1.0)
+        }
+    }
+
+    private var goalCurrentStr: String {
+        switch goalType {
+        case .distance:
+            return String(format: "%.1f", monthDisplayDistance)
+        case .calories:
+            return String(format: "%.0f", monthTotalCalories)
+        case .duration:
+            let h = Int(monthTotalDurationMin / 60)
+            let m = Int(monthTotalDurationMin.truncatingRemainder(dividingBy: 60))
+            return h > 0 ? "\(h)h \(m)m" : "\(m)m"
+        }
+    }
+
+    private var goalTargetStr: String {
+        switch goalType {
+        case .distance: return "/ \(Int(goalTarget)) \(distanceUnit.symbol)"
+        case .calories: return "/ \(Int(goalTarget)) kcal"
+        case .duration: return "/ \(Int(goalTarget)) \(t(.durationUnit))"
+        }
+    }
+
+    // Accent-linked dark gradient for the hero banner
+    private var heroBannerColors: [Color] {
+        switch themeAccent {
+        case .navy:   return [Color(hex: "#1A2E5E"), Color(hex: "#0A1F4A")]
+        case .blue:   return [Color(hex: "#0D3A96"), Color(hex: "#071E6E")]
+        case .green:  return [Color(hex: "#00ab45"), Color(hex: "#006c28")]
+        case .orange: return [Color(hex: "#da5b00"), Color(hex: "#c04d00")]  // midpoint: dark ↔ #FD6A00
+        case .red:    return [Color(hex: "#cb1414"), Color(hex: "#a91b1b")]  // midpoint: dark ↔ #F13E3E
+        case .purple: return [Color(hex: "#4A1580"), Color(hex: "#30095A")]
+        case .yellow: return [Color(hex: "#fad501"), Color(hex: "#ce9403")]  // midpoint: dark ↔ #FFB902
+        }
+    }
 
     private var mileageGoalBanner: some View {
-        let goalStr: String = {
-            switch goalType {
-            case .distance: return "\(Int(goalTarget)) \(distanceUnit.symbol)"
-            case .calories: return "\(Int(goalTarget)) kcal"
-            case .duration: return "\(Int(goalTarget)) \(t(.durationUnit))"
-            }
-        }()
+        let isDark = themeBackground.isDark
+        return HStack(alignment: .center, spacing: 18) {
+            GoalProgressRing(progress: goalProgressValue, isDark: isDark)
+                .frame(width: 132, height: 132)
 
-        return HStack {
-            HStack(spacing: 6) {
-                Image(systemName: "target")
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundColor(cAccent)
-                Text(t(.mileageGoalLabel))
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(cText)
-                Text(goalStr)
-                    .font(.system(size: 13, weight: .bold))
-                    .foregroundColor(cAccent)
+            VStack(alignment: .leading, spacing: 6) {
+                EyebrowLabel(text: t(.mileageGoalLabel), color: .white.opacity(0.55))
+
+                HStack(alignment: .lastTextBaseline, spacing: 6) {
+                    Text(goalCurrentStr)
+                        .font(.pretendard(.bold, size: 28))
+                        .foregroundColor(.white)
+                        .minimumScaleFactor(0.8)
+                        .lineLimit(1)
+                    Text(goalTargetStr)
+                        .font(.pretendard(.medium, size: 15))
+                        .foregroundColor(.white.opacity(0.6))
+                        .lineLimit(1)
+                }
+
+                if isCurrentMonth {
+                    HStack(spacing: 5) {
+                        Image(systemName: "clock")
+                            .font(.system(size: 11, weight: .medium))
+                        Text(String(format: t(.daysLeftFmt), remainingDays))
+                            .font(.pretendard(.medium, size: 12))
+                    }
+                    .foregroundColor(.white.opacity(0.78))
+                }
             }
-            Spacer()
-            Text(String(format: t(.daysLeftFmt), remainingDays))
-                .font(.system(size: 12, weight: .medium))
-                .foregroundColor(cSub)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.leading, 10)
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 10)
-        .background(cCard)
-        .cornerRadius(12)
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(
+                    LinearGradient(
+                        colors: heroBannerColors,
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .shadow(
+                    color: themeAccent.color.opacity(0.30),
+                    radius: 7, x: 0, y: 2
+                )
+        )
     }
 
     // MARK: - 일별 바 차트
@@ -471,7 +561,7 @@ struct ContentView: View {
                     } label: {
                         VStack(spacing: 6) {
                             Text(metric.label(lang: appLanguage))
-                                .font(.system(size: 14, weight: chartMetric == metric ? .bold : .medium))
+                                .font(.pretendard(chartMetric == metric ? .bold : .medium, size: 13))
                                 .foregroundColor(chartMetric == metric ? cText : cSub)
                             Rectangle()
                                 .fill(chartMetric == metric ? cAccent : Color.clear)
@@ -586,90 +676,37 @@ struct ContentView: View {
         }
     }
 
-    // MARK: - 월간 요약 카드
+    // MARK: - 월간 요약 카드 (2×3 StatChip Grid)
 
     private var monthlySummaryCards: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Summary")
-                .font(.system(size: 15, weight: .bold))
-                .foregroundColor(cText)
-            HStack(spacing: 12) {
-                summaryCard(
-                    icon: "figure.run",
-                    value: String(format: "%.1f", monthDisplayDistance),
-                    unit: distanceUnit.symbol,
-                    label: t(.dashboardTotalDistance)
-                )
-                summaryCard(
-                    icon: "clock.fill",
-                    value: monthDurationStr,
-                    unit: "",
-                    label: t(.dashboardTotalDuration)
-                )
-            }
-            HStack(spacing: 12) {
-                summaryCard(
-                    icon: "flame.fill",
-                    value: String(format: "%.0f", monthTotalCalories),
-                    unit: "kcal",
-                    label: t(.dashboardTotalCalories)
-                )
-                summaryCard(
-                    icon: "number",
-                    value: "\(monthSessionCount)\(appLanguage == .korean ? "회" : "")",
-                    unit: "",
-                    label: t(.thisMonthActivities)
-                )
-            }
-            HStack(spacing: 12) {
-                summaryCard(
-                    icon: "speedometer",
-                    value: monthAvgPaceStr,
-                    unit: "/\(distanceUnit.symbol)",
-                    label: t(.dashboardAvgPace)
-                )
-                summaryCard(
-                    icon: "arrow.left.arrow.right",
-                    value: String(format: "%.1f", monthAvgDistancePerRun),
-                    unit: distanceUnit.symbol,
-                    label: t(.dashboardAvgDistance)
+        let isDark     = themeBackground.isDark
+        let chipAccent = isDark ? themeAccent.colorDark : themeAccent.color
+        let chipSoft   = chipAccent.opacity(0.12)
+        let chipBg     = themeBackground.cardBg
+
+        let chips: [(icon: String, value: String, unit: String, label: String)] = [
+            ("figure.run",       String(format: "%.1f", monthDisplayDistance),     distanceUnit.symbol,       t(.dashboardTotalDistance)),
+            ("clock",            monthDurationStr,                                  "",                        t(.dashboardTotalDuration)),
+            ("flame.fill",       String(format: "%.0f", monthTotalCalories),       "kcal",                    t(.dashboardTotalCalories)),
+            ("number",           "\(monthSessionCount)",                            "",                        t(.thisMonthActivities)),
+            ("speedometer",      monthAvgPaceStr,                                   "/\(distanceUnit.symbol)", t(.dashboardAvgPace)),
+            ("arrow.left.arrow.right", String(format: "%.1f", monthAvgDistancePerRun), distanceUnit.symbol,   t(.dashboardAvgDistance)),
+        ]
+
+        return LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
+            ForEach(Array(chips.enumerated()), id: \.offset) { _, chip in
+                StatChip(
+                    icon: chip.icon,
+                    value: chip.value,
+                    unit: chip.unit,
+                    label: chip.label,
+                    accentColor: chipAccent,
+                    accentSoft: chipSoft,
+                    isDark: isDark,
+                    cardBg: chipBg
                 )
             }
         }
-    }
-
-    private func summaryCard(icon: String, value: String, unit: String, label: String) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: icon)
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(cAccent)
-                .frame(width: 32, height: 32)
-                .background(cAccent.opacity(0.12))
-                .clipShape(Circle())
-
-            VStack(alignment: .leading, spacing: 2) {
-                HStack(alignment: .lastTextBaseline, spacing: 3) {
-                    Text(value)
-                        .font(.system(size: 17, weight: .bold))
-                        .foregroundColor(cText)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                    if !unit.isEmpty {
-                        Text(unit)
-                            .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(cSub)
-                    }
-                }
-                Text(label)
-                    .font(.system(size: 10, weight: .medium))
-                    .foregroundColor(cSub)
-            }
-            Spacer()
-        }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 14)
-        .background(cCard)
-        .cornerRadius(14)
     }
 
     // MARK: - HealthKit 동기화
@@ -764,6 +801,28 @@ struct ContentView: View {
 
         lastSync        = stats?.lastSyncTime
         isAuthorized    = HealthKitService.shared.hasRequestedAuthorization()
+        applyNavBarStyle()
+    }
+
+    // iOS large title ≈ 34pt → 15% reduction = ~29pt
+    private func applyNavBarStyle() {
+        let isDark = themeBackground.isDark
+        let titleColor = isDark
+            ? UIColor(red: 0.949, green: 0.953, blue: 0.961, alpha: 1)  // #F2F3F5
+            : UIColor(red: 0.055, green: 0.067, blue: 0.086, alpha: 1)  // #0E1116
+        let largeFont = UIFont(name: "Pretendard-Bold", size: 29)
+            ?? UIFont.boldSystemFont(ofSize: 29)
+        let inlineFont = UIFont(name: "Pretendard-SemiBold", size: 15)
+            ?? UIFont.systemFont(ofSize: 15, weight: .semibold)
+
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithTransparentBackground()
+        appearance.largeTitleTextAttributes = [.font: largeFont, .foregroundColor: titleColor]
+        appearance.titleTextAttributes      = [.font: inlineFont, .foregroundColor: titleColor]
+
+        UINavigationBar.appearance().standardAppearance  = appearance
+        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+        UINavigationBar.appearance().compactAppearance    = appearance
     }
 }
 
@@ -920,6 +979,7 @@ struct SettingsTabView: View {
     @Binding var language: AppLanguage
     @Binding var goalType: GoalType
     @Binding var goalTarget: Double
+    @Binding var showHelpSheet: Bool
 
     var onSettingsChanged: () -> Void
     var onReset: () -> Void
@@ -927,32 +987,37 @@ struct SettingsTabView: View {
     var onSetGoal: () -> Void
     var isSyncing: Bool
     var isAuthorized: Bool
+    var tabBarHeight: CGFloat = 88
 
     @State private var isReconnecting = false
     @State private var showResetConfirm = false
     @State private var notifAuthStatus: String = ""
     @State private var settingsToastMsg: String = ""
     @State private var settingsShowToast: Bool = false
-    @State private var selectedPhotoItem: PhotosPickerItem?
-    @State private var hasWidgetBgImage: Bool = SharedDataManager.shared.hasWidgetBackgroundImage()
     @State private var widgetBgPreview: UIImage? = SharedDataManager.shared.loadWidgetBackgroundImage()
-    @State private var pickedRawImage: UIImage?
-    @State private var showCropSheet: Bool = false
     @State private var selectedWidgetDesign: WidgetDesign = SharedDataManager.shared.getWidgetDesign()
     @State private var isRestoring: Bool = false
+    @State private var workoutSourcePref: WorkoutSourcePreference = SharedDataManager.shared.getWorkoutSourcePreference()
+    @State private var showSourceFilterSheet: Bool = false
+    @State private var showLocalHelpSheet: Bool = false
 
     private func t(_ key: LK) -> String { L(key, language) }
 
     private var accentColor: Color { accent.color }
 
     private var availableAccents: [ThemeAccent] {
-        ThemeAccent.allCases.filter { a in
-            switch a {
-            case .white: return background == .black
-            case .black: return background == .white
-            default: return true
-            }
+        ThemeAccent.allCases
+    }
+
+    private var sourceFilterSummary: String {
+        let pref = workoutSourcePref
+        guard pref.isConfigured && !pref.allowedBundleIDs.isEmpty else {
+            return L(.dataSourceAll, language)
         }
+        let count = pref.allowedBundleIDs.count
+        return count == 1
+            ? "\(count) \(L(.dataSourceSelectedSingular, language))"
+            : "\(count) \(L(.dataSourceSelectedPlural, language))"
     }
 
     /// 설정 변경 시 즉시 저장
@@ -965,7 +1030,7 @@ struct SettingsTabView: View {
         onSettingsChanged()
     }
 
-    // MARK: - iOS-style 아이콘 뱃지
+    // MARK: - Icon badge helper
     private func settingsIcon(_ systemName: String, _ color: Color) -> some View {
         Image(systemName: systemName)
             .font(.system(size: 14, weight: .semibold))
@@ -975,387 +1040,517 @@ struct SettingsTabView: View {
             .cornerRadius(6)
     }
 
+    // MARK: - Section card builder
+    @ViewBuilder
+    private func settingsSection<C: View>(_ title: String, @ViewBuilder content: () -> C) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title.uppercased())
+                .font(.pretendard(.semiBold, size: 11))
+                .foregroundColor(background.subText)
+                .padding(.horizontal, 4)
+            content()
+                .background(
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(background.cardBg)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14)
+                                .stroke(
+                                    background.isDark ? Color.white.opacity(0.05) : Color(hex: "#0D1220").opacity(0.04),
+                                    lineWidth: 1
+                                )
+                        )
+                )
+        }
+    }
+
+    // MARK: - Row divider
+    private var rowDivider: some View {
+        Rectangle()
+            .fill(background.lineColor)
+            .frame(height: 0.5)
+            .padding(.leading, 54)
+    }
+
+    // MARK: - Settings Body
     var body: some View {
         NavigationView {
-            Form {
-                // MARK: Data
-                Section {
-                    Button(action: onSetGoal) {
-                        HStack(spacing: 12) {
-                            settingsIcon("target", .orange)
-                            Text(t(.setGoalButton))
-                            Spacer()
-                            Text("\(goalType.localizedDisplayName(lang: language)) \(formatGoalLabel())")
-                                .foregroundColor(.secondary)
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 12, weight: .semibold))
-                                .foregroundColor(Color(.tertiaryLabel))
-                        }
-                        .padding(.vertical, 4)
-                    }
-
-                    Button(action: onSyncHealthKit) {
-                        HStack(spacing: 12) {
-                            settingsIcon(isAuthorized ? "arrow.clockwise" : "heart.text.square", .red)
-                            Text(isSyncing ? t(.syncingLabel) : (isAuthorized ? t(.syncWithHealthKit) : t(.allowHealthKit)))
-                            Spacer()
-                            if isSyncing { ProgressView() }
-                        }
-                        .padding(.vertical, 4)
-                    }
-                    .disabled(isSyncing)
-
-                    Button(action: {
-                        isReconnecting = true
-                        HealthKitService.shared.requestAuthorization { _ in
-                            isReconnecting = false
-                            showSettingsToast(t(.hkReconnected))
-                        }
-                    }) {
-                        HStack(spacing: 12) {
-                            settingsIcon("heart.text.square", .pink)
-                            Text(t(.reconnectHK))
-                            Spacer()
-                            if isReconnecting { ProgressView() }
-                        }
-                        .padding(.vertical, 4)
-                    }
-                } header: {
-                    Text("Data")
-                }
-
-                // MARK: 위젯
-                Section {
-                    NavigationLink {
-                        WidgetDesignPickerView(
-                            selectedDesign: $selectedWidgetDesign,
-                            accent: accentColor,
-                            bg: background,
-                            language: language,
-                            onChanged: saveAll
-                        )
-                    } label: {
-                        HStack(spacing: 12) {
-                            settingsIcon("square.grid.2x2.fill", .indigo)
-                            Text(t(.widgetDesignSection))
-                            Spacer()
-                            Text(selectedWidgetDesign.localizedLabel(lang: language))
-                                .foregroundColor(.secondary)
-                        }
-                        .padding(.vertical, 4)
-                    }
-
-                    if storeManager.isPro {
-                        PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
-                            HStack(spacing: 12) {
-                                settingsIcon("photo.on.rectangle", .blue)
-                                Text(t(.widgetBgSelectPhoto))
+            ZStack {
+                background.appBg.ignoresSafeArea()
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 16) {
+                        // DATA
+                        settingsSection("Data") {
+                            VStack(spacing: 0) {
+                                Button(action: onSetGoal) {
+                                    HStack(spacing: 12) {
+                                        settingsIcon("target", .orange)
+                                        Text(t(.setGoalButton))
+                                            .font(.pretendard(.regular, size: 16))
+                                            .foregroundColor(background.mainText)
+                                        Spacer()
+                                        Text("\(goalType.localizedDisplayName(lang: language)) \(formatGoalLabel())")
+                                            .font(.pretendard(.regular, size: 14))
+                                            .foregroundColor(background.subText)
+                                        Image(systemName: "chevron.right")
+                                            .font(.system(size: 12, weight: .semibold))
+                                            .foregroundColor(background.inkOff)
+                                    }
+                                    .padding(.horizontal, 14).padding(.vertical, 13)
+                                }
+                                .buttonStyle(.plain)
+                                rowDivider
+                                Button(action: onSyncHealthKit) {
+                                    HStack(spacing: 12) {
+                                        settingsIcon(isAuthorized ? "arrow.clockwise" : "heart.text.square", .red)
+                                        Text(isSyncing ? t(.syncingLabel) : (isAuthorized ? t(.syncWithHealthKit) : t(.allowHealthKit)))
+                                            .font(.pretendard(.regular, size: 16))
+                                            .foregroundColor(background.mainText)
+                                        Spacer()
+                                        if isSyncing { ProgressView() }
+                                    }
+                                    .padding(.horizontal, 14).padding(.vertical, 13)
+                                }
+                                .buttonStyle(.plain)
+                                .disabled(isSyncing)
+                                rowDivider
+                                Button(action: {
+                                    isReconnecting = true
+                                    HealthKitService.shared.requestAuthorization { _ in
+                                        isReconnecting = false
+                                        showSettingsToast(t(.hkReconnected))
+                                    }
+                                }) {
+                                    HStack(spacing: 12) {
+                                        settingsIcon("heart.text.square", .pink)
+                                        Text(t(.reconnectHK))
+                                            .font(.pretendard(.regular, size: 16))
+                                            .foregroundColor(background.mainText)
+                                        Spacer()
+                                        if isReconnecting { ProgressView() }
+                                    }
+                                    .padding(.horizontal, 14).padding(.vertical, 13)
+                                }
+                                .buttonStyle(.plain)
+                                rowDivider
+                                Button(action: { showSourceFilterSheet = true }) {
+                                    HStack(spacing: 12) {
+                                        settingsIcon("line.3.horizontal.decrease.circle.fill", .cyan)
+                                        Text(L(.dataSourceButton, language))
+                                            .font(.pretendard(.regular, size: 16))
+                                            .foregroundColor(background.mainText)
+                                        Spacer()
+                                        Text(sourceFilterSummary)
+                                            .font(.pretendard(.regular, size: 14))
+                                            .foregroundColor(background.subText)
+                                        Image(systemName: "chevron.right")
+                                            .font(.system(size: 12, weight: .semibold))
+                                            .foregroundColor(background.inkOff)
+                                    }
+                                    .padding(.horizontal, 14).padding(.vertical, 13)
+                                }
+                                .buttonStyle(.plain)
                             }
-                            .padding(.vertical, 4)
                         }
-                        .onChange(of: selectedPhotoItem) {
-                            guard let item = selectedPhotoItem else { return }
-                            Task {
-                                if let data = try? await item.loadTransferable(type: Data.self),
-                                   let img = UIImage(data: data) {
-                                    await MainActor.run {
-                                        pickedRawImage = img.normalizedOrientation()
-                                        selectedPhotoItem = nil
-                                        showCropSheet = true
+
+                        // APPEARANCE
+                        settingsSection("General") {
+                            VStack(spacing: 0) {
+                                // Accent colour circles
+                                HStack(spacing: 12) {
+                                    settingsIcon("paintpalette.fill", Color(hex: "#913DE5"))
+                                    Text("Accent")
+                                        .font(.pretendard(.regular, size: 16))
+                                        .foregroundColor(background.mainText)
+                                    Spacer()
+                                    HStack(spacing: 7) {
+                                        ForEach(availableAccents, id: \.self) { ac in
+                                            ZStack {
+                                                Circle().fill(ac.color).frame(width: 22, height: 22)
+                                                if accent == ac {
+                                                    Circle()
+                                                        .strokeBorder(background.mainText, lineWidth: 2)
+                                                        .frame(width: 22, height: 22)
+                                                    Circle().fill(ac.color).frame(width: 15, height: 15)
+                                                }
+                                            }
+                                            .onTapGesture { accent = ac; saveAll() }
+                                        }
                                     }
                                 }
-                            }
-                        }
-
-                        if hasWidgetBgImage {
-                            Button(role: .destructive) {
-                                SharedDataManager.shared.removeWidgetBackgroundImage()
-                                widgetBgPreview = nil
-                                hasWidgetBgImage = false
-                                selectedPhotoItem = nil
-                                WidgetCenter.shared.reloadAllTimelines()
-                                showSettingsToast(t(.widgetBgRemoved))
-                            } label: {
+                                .padding(.horizontal, 14).padding(.vertical, 13)
+                                rowDivider
+                                // Theme
                                 HStack(spacing: 12) {
-                                    settingsIcon("trash", .red)
-                                    Text(t(.widgetBgRemovePhoto))
-                                        .foregroundColor(.red)
+                                    settingsIcon("circle.lefthalf.filled", Color(hex: "#6B7280"))
+                                    Text(t(.bgThemeSection))
+                                        .font(.pretendard(.regular, size: 16))
+                                        .foregroundColor(background.mainText)
+                                    Spacer()
+                                    Picker("", selection: $background) {
+                                        ForEach(ThemeBackground.allCases, id: \.self) { bg in
+                                            Text(bg.localizedLabel(lang: language)).tag(bg)
+                                        }
+                                    }
+                                    .pickerStyle(.segmented)
+                                    .frame(width: 140)
+                                    .onChange(of: background) { saveAll() }
                                 }
-                                .padding(.vertical, 4)
+                                .padding(.horizontal, 14).padding(.vertical, 10)
+                                rowDivider
+                                // Distance unit
+                                HStack(spacing: 12) {
+                                    settingsIcon("ruler", Color(hex: "#0D9488"))
+                                    Text(t(.distUnitSection))
+                                        .font(.pretendard(.regular, size: 16))
+                                        .foregroundColor(background.mainText)
+                                    Spacer()
+                                    Picker("", selection: $distanceUnit) {
+                                        ForEach(DistanceUnit.allCases, id: \.self) { unit in
+                                            Text(unit.symbol).tag(unit)
+                                        }
+                                    }
+                                    .pickerStyle(.segmented)
+                                    .frame(width: 100)
+                                    .onChange(of: distanceUnit) {
+                                        if goalType == .distance {
+                                            let converted = distanceUnit == .mile
+                                                ? goalTarget * DistanceUnit.mile.conversionFromKm
+                                                : goalTarget / DistanceUnit.mile.conversionFromKm
+                                            goalTarget = converted
+                                            SharedDataManager.shared.saveGoal(type: goalType, target: converted)
+                                        }
+                                        saveAll()
+                                    }
+                                }
+                                .padding(.horizontal, 14).padding(.vertical, 10)
+                                rowDivider
+                                // Language
+                                HStack(spacing: 12) {
+                                    settingsIcon("globe", Color(hex: "#3478FE"))
+                                    Text(t(.languageSection))
+                                        .font(.pretendard(.regular, size: 16))
+                                        .foregroundColor(background.mainText)
+                                    Spacer()
+                                    Picker("", selection: $language) {
+                                        ForEach(AppLanguage.allCases, id: \.self) { lang in
+                                            Text(lang.displayName).tag(lang)
+                                        }
+                                    }
+                                    .pickerStyle(.menu)
+                                    .accentColor(background.subText)
+                                    .onChange(of: language) { saveAll() }
+                                }
+                                .padding(.horizontal, 14).padding(.vertical, 10)
                             }
                         }
-                    } else {
-                        HStack(spacing: 12) {
-                            settingsIcon("photo.on.rectangle", .blue)
-                            Text(t(.widgetBgSelectPhoto))
-                            Spacer()
-                            Image(systemName: "lock.fill")
-                                .font(.system(size: 12))
-                                .foregroundColor(.secondary)
-                            Text("Pro")
-                                .font(.system(size: 12, weight: .semibold))
-                                .foregroundColor(accentColor)
-                        }
-                        .padding(.vertical, 4)
-                        .opacity(0.6)
-                    }
-                } header: {
-                    Text("Widget")
-                }
 
-                // MARK: Pro
-                if !storeManager.isPro {
-                    Section {
-                        VStack(alignment: .leading, spacing: 10) {
-                            HStack(spacing: 6) {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundColor(accentColor)
-                                    .font(.system(size: 14))
-                                Text(t(.proFeaturePhoto))
-                                    .font(.system(size: 14))
-                            }
-                            HStack(spacing: 6) {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundColor(accentColor)
-                                    .font(.system(size: 14))
-                                Text(t(.proFeatureLockWidget))
-                                    .font(.system(size: 14))
-                            }
-                        }
-                        .padding(.vertical, 4)
-
-                        Button {
-                            Task {
-                                let success = await storeManager.purchasePro()
-                                if success {
-                                    WidgetCenter.shared.reloadAllTimelines()
-                                    showSettingsToast(t(.proPurchased))
+                        // WIDGET
+                        settingsSection("Widget") {
+                            VStack(spacing: 0) {
+                                NavigationLink {
+                                    WidgetDesignPickerView(
+                                        selectedDesign: $selectedWidgetDesign,
+                                        accent: accentColor,
+                                        bg: background,
+                                        language: language,
+                                        onChanged: saveAll
+                                    )
+                                } label: {
+                                    HStack(spacing: 12) {
+                                        settingsIcon("square.grid.2x2.fill", Color(hex: "#5856D6"))
+                                        Text(t(.widgetDesignSection))
+                                            .font(.pretendard(.regular, size: 16))
+                                            .foregroundColor(background.mainText)
+                                        Spacer()
+                                        Text(selectedWidgetDesign.localizedLabel(lang: language))
+                                            .font(.pretendard(.regular, size: 14))
+                                            .foregroundColor(background.subText)
+                                        Image(systemName: "chevron.right")
+                                            .font(.system(size: 12, weight: .semibold))
+                                            .foregroundColor(background.inkOff)
+                                    }
+                                    .padding(.horizontal, 14).padding(.vertical, 13)
                                 }
-                            }
-                        } label: {
-                            HStack {
-                                Spacer()
-                                if storeManager.purchaseInProgress {
-                                    ProgressView()
-                                        .padding(.trailing, 8)
-                                }
-                                Text(t(.proUpgradeButton))
-                                    .font(.system(size: 16, weight: .bold))
-                                if let price = storeManager.proProduct?.displayPrice {
-                                    Text(price)
-                                        .font(.system(size: 14, weight: .medium))
-                                }
-                                Spacer()
-                            }
-                            .padding(.vertical, 6)
-                            .foregroundColor(background == .black ? .black : .white)
-                        }
-                        .listRowBackground(accentColor)
-                        .disabled(storeManager.purchaseInProgress)
-
-                        Button {
-                            isRestoring = true
-                            Task {
-                                await storeManager.restorePurchases()
-                                isRestoring = false
                                 if storeManager.isPro {
+                                    rowDivider
+                                    NavigationLink {
+                                        PhotoGalleryView(
+                                            accentColor: accentColor,
+                                            bg: background,
+                                            language: language
+                                        )
+                                    } label: {
+                                        HStack(spacing: 12) {
+                                            settingsIcon("photo.on.rectangle", Color(hex: "#3478FE"))
+                                            Text(t(.widgetBgSelectPhoto))
+                                                .font(.pretendard(.regular, size: 16))
+                                                .foregroundColor(background.mainText)
+                                            Spacer()
+                                            if let thumb = widgetBgPreview {
+                                                Image(uiImage: thumb)
+                                                    .resizable()
+                                                    .scaledToFill()
+                                                    .frame(width: 36, height: 17)
+                                                    .clipped()
+                                                    .cornerRadius(4)
+                                            }
+                                            Image(systemName: "chevron.right")
+                                                .font(.system(size: 12, weight: .semibold))
+                                                .foregroundColor(background.inkOff)
+                                        }
+                                        .padding(.horizontal, 14).padding(.vertical, 13)
+                                    }
+                                } else {
+                                    rowDivider
+                                    HStack(spacing: 12) {
+                                        settingsIcon("photo.on.rectangle", Color(hex: "#3478FE"))
+                                        Text(t(.widgetBgSelectPhoto))
+                                            .font(.pretendard(.regular, size: 16))
+                                            .foregroundColor(background.mainText)
+                                        Spacer()
+                                        Image(systemName: "lock.fill")
+                                            .font(.system(size: 12))
+                                            .foregroundColor(background.inkOff)
+                                        Text("Pro")
+                                            .font(.pretendard(.semiBold, size: 12))
+                                            .foregroundColor(accentColor)
+                                    }
+                                    .padding(.horizontal, 14).padding(.vertical, 13)
+                                    .opacity(0.65)
+                                }
+                            }
+                        }
+
+                        // NOTIFICATIONS
+                        settingsSection(t(.notificationsSection)) {
+                            VStack(spacing: 0) {
+                                HStack(spacing: 12) {
+                                    settingsIcon("bell.badge.fill", Color(hex: "#EF4444"))
+                                    Text(t(.goalReminderToggle))
+                                        .font(.pretendard(.regular, size: 16))
+                                        .foregroundColor(background.mainText)
+                                    Spacer()
+                                    Toggle("", isOn: $notificationSettings.isEnabled)
+                                        .tint(accentColor)
+                                        .labelsHidden()
+                                        .onChange(of: notificationSettings.isEnabled) {
+                                            if notificationSettings.isEnabled {
+                                                NotificationManager.shared.requestAuthorization { granted in
+                                                    if !granted {
+                                                        notificationSettings.isEnabled = false
+                                                        notifAuthStatus = t(.notifPermError)
+                                                    } else {
+                                                        notifAuthStatus = ""
+                                                    }
+                                                }
+                                            }
+                                            saveAll()
+                                        }
+                                }
+                                .padding(.horizontal, 14).padding(.vertical, 13)
+                                if notificationSettings.isEnabled {
+                                    rowDivider
+                                    HStack(spacing: 12) {
+                                        Color.clear.frame(width: 28, height: 28)
+                                        Text(t(.d7NotifLabel))
+                                            .font(.pretendard(.regular, size: 15))
+                                            .foregroundColor(background.mainText)
+                                        Spacer()
+                                        Toggle("", isOn: $notificationSettings.d7Enabled)
+                                            .tint(accentColor).labelsHidden()
+                                            .onChange(of: notificationSettings.d7Enabled) { saveAll() }
+                                    }
+                                    .padding(.horizontal, 14).padding(.vertical, 11)
+                                    rowDivider
+                                    HStack(spacing: 12) {
+                                        Color.clear.frame(width: 28, height: 28)
+                                        Text(t(.d3NotifLabel))
+                                            .font(.pretendard(.regular, size: 15))
+                                            .foregroundColor(background.mainText)
+                                        Spacer()
+                                        Toggle("", isOn: $notificationSettings.d3Enabled)
+                                            .tint(accentColor).labelsHidden()
+                                            .onChange(of: notificationSettings.d3Enabled) { saveAll() }
+                                    }
+                                    .padding(.horizontal, 14).padding(.vertical, 11)
+                                    rowDivider
+                                    HStack(spacing: 12) {
+                                        Color.clear.frame(width: 28, height: 28)
+                                        Text(t(.d1NotifLabel))
+                                            .font(.pretendard(.regular, size: 15))
+                                            .foregroundColor(background.mainText)
+                                        Spacer()
+                                        Toggle("", isOn: $notificationSettings.d1Enabled)
+                                            .tint(accentColor).labelsHidden()
+                                            .onChange(of: notificationSettings.d1Enabled) { saveAll() }
+                                    }
+                                    .padding(.horizontal, 14).padding(.vertical, 11)
+                                }
+                                if !notifAuthStatus.isEmpty {
+                                    rowDivider
+                                    Text(notifAuthStatus)
+                                        .font(.pretendard(.regular, size: 13))
+                                        .foregroundColor(.red)
+                                        .padding(.horizontal, 14).padding(.vertical, 10)
+                                }
+                            }
+                        }
+
+                        // PRO (if not unlocked)
+                        if !storeManager.isPro {
+                            settingsSection(t(.proSectionTitle)) {
+                                VStack(spacing: 0) {
+                                    VStack(alignment: .leading, spacing: 10) {
+                                        HStack(spacing: 8) {
+                                            Image(systemName: "checkmark.circle.fill")
+                                                .foregroundColor(accentColor)
+                                            Text(t(.proFeaturePhoto))
+                                                .font(.pretendard(.regular, size: 15))
+                                                .foregroundColor(background.mainText)
+                                        }
+                                        HStack(spacing: 8) {
+                                            Image(systemName: "checkmark.circle.fill")
+                                                .foregroundColor(accentColor)
+                                            Text(t(.proFeatureLockWidget))
+                                                .font(.pretendard(.regular, size: 15))
+                                                .foregroundColor(background.mainText)
+                                        }
+                                    }
+                                    .padding(.horizontal, 14).padding(.vertical, 14)
+                                    rowDivider
+                                    Button {
+                                        Task {
+                                            let success = await storeManager.purchasePro()
+                                            if success {
+                                                WidgetCenter.shared.reloadAllTimelines()
+                                                showSettingsToast(t(.proPurchased))
+                                            }
+                                        }
+                                    } label: {
+                                        HStack {
+                                            Spacer()
+                                            if storeManager.purchaseInProgress {
+                                                ProgressView().tint(.white).padding(.trailing, 8)
+                                            }
+                                            Text(t(.proUpgradeButton))
+                                                .font(.pretendard(.bold, size: 16))
+                                            if let price = storeManager.proProduct?.displayPrice {
+                                                Text(price)
+                                                    .font(.pretendard(.medium, size: 14))
+                                            }
+                                            Spacer()
+                                        }
+                                        .padding(.vertical, 14)
+                                        .foregroundColor(accent.foregroundColor)
+                                        .background(accentColor)
+                                    }
+                                    .buttonStyle(.plain)
+                                    .disabled(storeManager.purchaseInProgress)
+                                    rowDivider
+                                    Button(action: {
+                                        isRestoring = true
+                                        Task {
+                                            await storeManager.restorePurchases()
+                                            isRestoring = false
+                                            if storeManager.isPro {
+                                                WidgetCenter.shared.reloadAllTimelines()
+                                                showSettingsToast(t(.proRestored))
+                                            } else {
+                                                showSettingsToast(t(.proRestoreFailed))
+                                            }
+                                        }
+                                    }) {
+                                        HStack(spacing: 12) {
+                                            settingsIcon("arrow.clockwise", Color(hex: "#6B7280"))
+                                            Text(t(.proRestoreButton))
+                                                .font(.pretendard(.regular, size: 16))
+                                                .foregroundColor(background.mainText)
+                                            Spacer()
+                                            if isRestoring { ProgressView() }
+                                        }
+                                        .padding(.horizontal, 14).padding(.vertical, 13)
+                                    }
+                                    .buttonStyle(.plain)
+                                    .disabled(isRestoring)
+                                }
+                            }
+                        }
+
+                        // ABOUT
+                        settingsSection("About") {
+                            VStack(spacing: 0) {
+                                HStack(spacing: 12) {
+                                    settingsIcon("info.circle.fill", Color(hex: "#6B7280"))
+                                    Text(t(.versionLabel))
+                                        .font(.pretendard(.regular, size: 16))
+                                        .foregroundColor(background.mainText)
+                                    Spacer()
+                                    Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "-")
+                                        .font(.pretendard(.regular, size: 14))
+                                        .foregroundColor(background.subText)
+                                }
+                                .padding(.horizontal, 14).padding(.vertical, 13)
+                                if storeManager.isPro {
+                                    rowDivider
+                                    HStack(spacing: 12) {
+                                        settingsIcon("crown.fill", Color(hex: "#F59E0B"))
+                                        Text(t(.proUnlocked))
+                                            .font(.pretendard(.regular, size: 16))
+                                            .foregroundColor(accentColor)
+                                        Spacer()
+                                    }
+                                    .padding(.horizontal, 14).padding(.vertical, 13)
+                                }
+                                rowDivider
+                                Button(action: {
                                     WidgetCenter.shared.reloadAllTimelines()
-                                    showSettingsToast(t(.proRestored))
-                                } else {
-                                    showSettingsToast(t(.proRestoreFailed))
+                                    showSettingsToast(t(.widgetRefreshed))
+                                }) {
+                                    HStack(spacing: 12) {
+                                        settingsIcon("arrow.clockwise.circle", Color(hex: "#04B249"))
+                                        Text(t(.forceRefreshWidget))
+                                            .font(.pretendard(.regular, size: 16))
+                                            .foregroundColor(background.mainText)
+                                        Spacer()
+                                    }
+                                    .padding(.horizontal, 14).padding(.vertical, 13)
                                 }
-                            }
-                        } label: {
-                            HStack(spacing: 12) {
-                                settingsIcon("arrow.clockwise", .gray)
-                                Text(t(.proRestoreButton))
-                                Spacer()
-                                if isRestoring { ProgressView() }
-                            }
-                            .padding(.vertical, 4)
-                        }
-                        .disabled(isRestoring)
-                    } header: {
-                        Text(t(.proSectionTitle))
-                    }
-                }
-
-                // MARK: General
-                Section {
-                    // 포인트 색상
-                    HStack(spacing: 0) {
-                        settingsIcon("paintpalette.fill", .purple)
-                            .padding(.trailing, 12)
-                        ForEach(availableAccents, id: \.self) { ac in
-                            ZStack {
-                                Circle()
-                                    .fill(ac.color)
-                                    .frame(width: 28, height: 28)
-                                if accent == ac {
-                                    Circle()
-                                        .strokeBorder(Color.primary, lineWidth: 2.5)
-                                        .frame(width: 28, height: 28)
-                                    Circle()
-                                        .fill(ac.color)
-                                        .frame(width: 20, height: 20)
+                                .buttonStyle(.plain)
+                                rowDivider
+                                Button(action: { showResetConfirm = true }) {
+                                    HStack(spacing: 12) {
+                                        settingsIcon("trash.fill", Color(hex: "#EF4444"))
+                                        Text(t(.resetDataButton))
+                                            .font(.pretendard(.regular, size: 16))
+                                            .foregroundColor(Color(hex: "#EF4444"))
+                                        Spacer()
+                                    }
+                                    .padding(.horizontal, 14).padding(.vertical, 13)
                                 }
-                            }
-                            .frame(maxWidth: .infinity)
-                            .onTapGesture {
-                                accent = ac
-                                saveAll()
+                                .buttonStyle(.plain)
                             }
                         }
-                    }
-                    .padding(.vertical, 6)
 
-                    // 배경 테마
-                    HStack(spacing: 12) {
-                        settingsIcon("circle.lefthalf.filled", .gray)
-                        Picker(t(.bgThemeSection), selection: $background) {
-                            ForEach(ThemeBackground.allCases, id: \.self) { bg in
-                                Text(bg.localizedLabel(lang: language)).tag(bg)
-                            }
-                        }
-                        .pickerStyle(.segmented)
-                        .onChange(of: background) {
-                            if background == .white && accent == .white {
-                                accent = .yellow
-                            } else if background == .black && accent == .black {
-                                accent = .yellow
-                            }
-                            saveAll()
-                        }
+                        Color.clear.frame(height: tabBarHeight)
                     }
-                    .padding(.vertical, 4)
-
-                    // 거리 단위
-                    HStack(spacing: 12) {
-                        settingsIcon("ruler", .teal)
-                        Picker(t(.distUnitSection), selection: $distanceUnit) {
-                            ForEach(DistanceUnit.allCases, id: \.self) { unit in
-                                Text(unit.symbol).tag(unit)
-                            }
-                        }
-                        .pickerStyle(.segmented)
-                        .onChange(of: distanceUnit) {
-                            if goalType == .distance {
-                                let converted = distanceUnit == .mile
-                                    ? goalTarget * DistanceUnit.mile.conversionFromKm
-                                    : goalTarget / DistanceUnit.mile.conversionFromKm
-                                goalTarget = converted
-                                SharedDataManager.shared.saveGoal(type: goalType, target: converted)
-                            }
-                            saveAll()
-                        }
-                    }
-                    .padding(.vertical, 4)
-
-                    // 언어 선택
-                    Picker(selection: $language) {
-                        ForEach(AppLanguage.allCases, id: \.self) { lang in
-                            Text(lang.displayName).tag(lang)
-                        }
-                    } label: {
-                        HStack(spacing: 12) {
-                            settingsIcon("globe", .blue)
-                            Text(t(.languageSection))
-                        }
-                    }
-                    .padding(.vertical, 4)
-                    .onChange(of: language) { saveAll() }
-                } header: {
-                    Text("General")
+                    .padding(.horizontal, 16)
+                    .padding(.top, 8)
                 }
-
-                // MARK: 알림
-                Section {
-                    Toggle(isOn: $notificationSettings.isEnabled) {
-                        HStack(spacing: 12) {
-                            settingsIcon("bell.badge.fill", .red)
-                            Text(t(.goalReminderToggle))
-                        }
-                    }
-                    .padding(.vertical, 4)
-                    .tint(.primary)
-                    .onChange(of: notificationSettings.isEnabled) {
-                        if notificationSettings.isEnabled {
-                            NotificationManager.shared.requestAuthorization { granted in
-                                if !granted {
-                                    notificationSettings.isEnabled = false
-                                    notifAuthStatus = t(.notifPermError)
-                                } else {
-                                    notifAuthStatus = ""
-                                }
-                            }
-                        }
-                        saveAll()
-                    }
-
-                    if notificationSettings.isEnabled {
-                        Toggle(t(.d7NotifLabel), isOn: $notificationSettings.d7Enabled)
-                            .tint(.primary)
-                            .onChange(of: notificationSettings.d7Enabled) { saveAll() }
-                        Toggle(t(.d3NotifLabel), isOn: $notificationSettings.d3Enabled)
-                            .tint(.primary)
-                            .onChange(of: notificationSettings.d3Enabled) { saveAll() }
-                        Toggle(t(.d1NotifLabel), isOn: $notificationSettings.d1Enabled)
-                            .tint(.primary)
-                            .onChange(of: notificationSettings.d1Enabled) { saveAll() }
-                    }
-
-                    if !notifAuthStatus.isEmpty {
-                        Text(notifAuthStatus)
-                            .font(.system(size: 12))
-                            .foregroundColor(.red)
-                    }
-                } header: {
-                    Text(t(.notificationsSection))
-                }
-
-                // MARK: 일반
-                Section {
-                    HStack(spacing: 12) {
-                        settingsIcon("info.circle.fill", .gray)
-                        Text(t(.versionLabel))
-                        Spacer()
-                        Text(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "-")
-                            .foregroundColor(.secondary)
-                    }
-                    .padding(.vertical, 4)
-
-                    if storeManager.isPro {
-                        HStack(spacing: 12) {
-                            settingsIcon("crown.fill", .yellow)
-                            Text(t(.proUnlocked))
-                                .foregroundColor(accentColor)
-                        }
-                        .padding(.vertical, 4)
-                    }
-
-                    Button(action: {
-                        WidgetCenter.shared.reloadAllTimelines()
-                        showSettingsToast(t(.widgetRefreshed))
-                    }) {
-                        HStack(spacing: 12) {
-                            settingsIcon("arrow.clockwise.circle", .green)
-                            Text(t(.forceRefreshWidget))
-                        }
-                        .padding(.vertical, 4)
-                    }
-
-                    Button(role: .destructive, action: { showResetConfirm = true }) {
-                        HStack(spacing: 12) {
-                            settingsIcon("trash.fill", .red)
-                            Text(t(.resetDataButton))
-                                .foregroundColor(.red)
-                        }
-                        .padding(.vertical, 4)
+            }
+            .onAppear {
+                widgetBgPreview = SharedDataManager.shared.loadWidgetBackgroundImage()
+            }
+            .navigationTitle("Settings")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: { showLocalHelpSheet = true }) {
+                        Image(systemName: "questionmark.circle")
+                            .font(.system(size: 17, weight: .medium))
+                            .foregroundColor(accent.color)
                     }
                 }
             }
-            .navigationTitle(t(.settingsTitle))
-            .navigationBarTitleDisplayMode(.large)
             .preferredColorScheme(background.colorScheme)
             .confirmationDialog(
                 t(.resetConfirmMsg),
@@ -1372,29 +1567,38 @@ struct SettingsTabView: View {
             .overlay(alignment: .bottom) {
                 if settingsShowToast {
                     Text(settingsToastMsg)
-                        .font(.system(size: 14, weight: .medium))
+                        .font(.pretendard(.medium, size: 14))
                         .foregroundColor(.white)
-                        .padding(.horizontal, 24)
-                        .padding(.vertical, 12)
+                        .padding(.horizontal, 24).padding(.vertical, 12)
                         .background(Color.black.opacity(0.78))
                         .cornerRadius(24)
-                        .padding(.bottom, 40)
+                        .padding(.bottom, tabBarHeight + 8)
                         .transition(.opacity.combined(with: .move(edge: .bottom)))
                 }
             }
             .animation(.easeInOut(duration: 0.25), value: settingsShowToast)
-            .sheet(isPresented: $showCropSheet) {
-                if let rawImage = pickedRawImage {
-                    WidgetImageCropView(image: rawImage, accentColor: accentColor, language: language) { croppedImage in
-                        SharedDataManager.shared.saveWidgetBackgroundImage(croppedImage)
-                        widgetBgPreview = SharedDataManager.shared.loadWidgetBackgroundImage()
-                        hasWidgetBgImage = true
-                        WidgetCenter.shared.reloadAllTimelines()
-                        showSettingsToast(t(.widgetBgSaved))
-                    }
+            .sheet(isPresented: $showSourceFilterSheet) {
+                DataSourceFilterView(
+                    pref: workoutSourcePref,
+                    language: language,
+                    accentColor: accentColor
+                ) { updatedPref in
+                    workoutSourcePref = updatedPref
+                    SharedDataManager.shared.saveWorkoutSourcePreference(updatedPref)
+                    onSettingsChanged()
+                    onSyncHealthKit()
                 }
             }
+            .sheet(isPresented: $showLocalHelpSheet) {
+                HelpView(language: language,
+                         cAccent: accentColor,
+                         cBg: background.appBg,
+                         cCard: background.cardBg,
+                         cText: background.mainText,
+                         cSub: background.subText)
+            }
         }
+        .navigationViewStyle(.stack)
     }
 
     private func formatGoalLabel() -> String {
@@ -1762,4 +1966,512 @@ private struct CropOverlay: View {
             .frame(width: cropW, height: cropH)
             .allowsHitTesting(false)
     }
+}
+
+// MARK: - DataSourceFilterView
+
+struct DataSourceFilterView: View {
+    @Environment(\.dismiss) private var dismiss
+    let initialPref: WorkoutSourcePreference
+    let language: AppLanguage
+    let accentColor: Color
+    var onSave: (WorkoutSourcePreference) -> Void
+
+    @State private var availableSources: [(name: String, bundleID: String)] = []
+    @State private var selectedBundleIDs: Set<String>
+    @State private var isLoading = true
+
+    init(pref: WorkoutSourcePreference, language: AppLanguage,
+         accentColor: Color, onSave: @escaping (WorkoutSourcePreference) -> Void) {
+        self.initialPref = pref
+        self.language = language
+        self.accentColor = accentColor
+        self.onSave = onSave
+        self._selectedBundleIDs = State(initialValue: Set(pref.allowedBundleIDs))
+    }
+
+    private var allSelected: Bool { selectedBundleIDs.isEmpty }
+
+    var body: some View {
+        NavigationView {
+            Form {
+                Section {
+                    Button {
+                        selectedBundleIDs = []
+                    } label: {
+                        HStack {
+                            Text(L(.dataSourceAll, language))
+                                .foregroundColor(.primary)
+                            Spacer()
+                            if allSelected {
+                                Image(systemName: "checkmark")
+                                    .foregroundColor(accentColor)
+                            }
+                        }
+                        .padding(.vertical, 4)
+                    }
+                }
+
+                if isLoading {
+                    Section {
+                        HStack {
+                            ProgressView()
+                            Text(L(.dataSourceLoading, language))
+                                .foregroundColor(.secondary)
+                                .padding(.leading, 8)
+                        }
+                    }
+                } else {
+                    Section {
+                        ForEach(availableSources, id: \.bundleID) { source in
+                            Button {
+                                if selectedBundleIDs.contains(source.bundleID) {
+                                    selectedBundleIDs.remove(source.bundleID)
+                                } else {
+                                    selectedBundleIDs.insert(source.bundleID)
+                                }
+                            } label: {
+                                HStack {
+                                    Text(source.name)
+                                        .foregroundColor(.primary)
+                                    Spacer()
+                                    if selectedBundleIDs.contains(source.bundleID) {
+                                        Image(systemName: "checkmark")
+                                            .foregroundColor(accentColor)
+                                    }
+                                }
+                                .padding(.vertical, 4)
+                            }
+                        }
+                    } header: {
+                        Text(L(.dataSourceSectionHeader, language))
+                    } footer: {
+                        Text(L(.dataSourceFooter, language))
+                            .font(.system(size: 12))
+                    }
+                }
+            }
+            .navigationTitle(L(.dataSourceTitle, language))
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(L(.cancelButton, language)) { dismiss() }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(L(.saveButton, language)) {
+                        let pref = WorkoutSourcePreference(
+                            allowedBundleIDs: Array(selectedBundleIDs),
+                            isConfigured: true
+                        )
+                        onSave(pref)
+                        dismiss()
+                    }
+                    .bold()
+                }
+            }
+            .onAppear {
+                HealthKitService.shared.fetchAvailableRunningSources { sources in
+                    availableSources = sources
+                    isLoading = false
+                }
+            }
+        }
+    }
+}
+
+// MARK: - CalendarView
+
+struct CalendarView: View {
+    let themeAccent: ThemeAccent
+    let themeBackground: ThemeBackground
+    let distanceUnit: DistanceUnit
+    let appLanguage: AppLanguage
+    let allSessions: [RunSession]
+    var tabBarHeight: CGFloat = 88
+
+    @State private var selectedDate: Date = Date()
+    @State private var displayMonth: Date = Date()
+
+    private func t(_ key: LK) -> String { L(key, appLanguage) }
+    private var cAccent: Color  { themeAccent.color }
+    private var cBg:     Color  { themeBackground.appBg }
+    private var cCard:   Color  { themeBackground.cardBg }
+    private var cText:   Color  { themeBackground.mainText }
+    private var cSub:    Color  { themeBackground.subText }
+
+    var body: some View {
+        NavigationView {
+            ZStack {
+                cBg.ignoresSafeArea()
+
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 12) {
+                        monthPicker
+
+                        VStack(spacing: 12) {
+                            weekdayHeader
+                            calendarGrid
+                            calendarLegend
+                        }
+                        .padding(16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(cCard)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 16)
+                                        .stroke(themeBackground.isDark ? Color.white.opacity(0.05) : Color(hex: "#0D1220").opacity(0.04), lineWidth: 1)
+                                )
+                        )
+                        .padding(.horizontal, 16)
+
+                        streakCard
+                            .padding(.horizontal, 16)
+
+                        selectedDateSessions
+                            .padding(.horizontal, 16)
+
+                        Color.clear.frame(height: tabBarHeight + 8)
+                    }
+                    .padding(.top, 4)
+                }
+                .background(cBg)
+            }
+            .navigationTitle("Calendar")
+            .navigationBarTitleDisplayMode(.large)
+            .preferredColorScheme(themeBackground.colorScheme)
+            .onAppear { focusLastWorkoutOfMonth() }
+            .onChange(of: displayMonth) { _ in focusLastWorkoutOfMonth() }
+        }
+        .navigationViewStyle(.stack)
+    }
+
+    private var monthPicker: some View {
+        let shadowColor: Color = themeBackground.isDark ? .black.opacity(0.4) : Color(hex: "#0D1220").opacity(0.04)
+        let borderColor: Color = themeBackground.isDark ? .white.opacity(0.05) : Color(hex: "#0D1220").opacity(0.04)
+
+        return HStack {
+            Button(action: previousMonth) {
+                Image(systemName: "chevron.left")
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundColor(cText)
+                    .frame(width: 36, height: 36)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(cCard)
+                            .shadow(color: shadowColor, radius: 2, x: 0, y: 1)
+                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(borderColor, lineWidth: 1))
+                    )
+            }
+            .buttonStyle(.plain)
+
+            Spacer()
+
+            Text(monthYearString(displayMonth))
+                .font(.pretendard(.bold, size: 16))
+                .foregroundColor(cText)
+
+            Spacer()
+
+            Button(action: nextMonth) {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundColor(canGoToNextMonth() ? cText : themeBackground.inkOff)
+                    .frame(width: 36, height: 36)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(cCard)
+                            .shadow(color: shadowColor, radius: 2, x: 0, y: 1)
+                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(borderColor, lineWidth: 1))
+                    )
+            }
+            .buttonStyle(.plain)
+            .disabled(!canGoToNextMonth())
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 4)
+    }
+
+    private var weekdayHeader: some View {
+        let labels = weekdayLabels()
+        return HStack(spacing: 0) {
+            ForEach(labels, id: \.self) { label in
+                Text(label)
+                    .font(.pretendard(.semiBold, size: 11))
+                    .foregroundColor(cSub)
+                    .frame(maxWidth: .infinity)
+            }
+        }
+    }
+
+    private var calendarGrid: some View {
+        let days = getDaysInMonth()
+        let cols = Array(repeating: GridItem(.flexible(), spacing: 4), count: 7)
+        return LazyVGrid(columns: cols, spacing: 4) {
+            ForEach(days, id: \.id) { day in
+                if let date = day.date {
+                    let km = distanceKm(for: date)
+                    let isSelected = isSameDay(date, selectedDate)
+                    let isRunDay = isToday(date)
+
+                    ZStack(alignment: .topTrailing) {
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(intensityColor(km: km))
+
+                        if isSelected {
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(cAccent, lineWidth: 2)
+                        }
+
+                        Text("\(day.number)")
+                            .font(.pretendard(isRunDay ? .bold : .medium, size: 13))
+                            .foregroundColor(textColorForIntensity(km: km))
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                        if isToday(date) {
+                            Circle()
+                                .fill(cAccent)
+                                .frame(width: 5, height: 5)
+                                .padding(4)
+                        }
+                    }
+                    .frame(height: 44)
+                    .contentShape(Rectangle())
+                    .onTapGesture { selectedDate = date }
+                } else {
+                    Color.clear.frame(height: 44)
+                }
+            }
+        }
+    }
+
+    private var calendarLegend: some View {
+        let levels: [(color: Color, label: String)] = [
+            (themeBackground.grayBg, t(.calLegendRest)),
+            (cAccent.opacity(0.25),  "< 3\(distanceUnit.symbol)"),
+            (cAccent.opacity(0.55),  "< 6\(distanceUnit.symbol)"),
+            (cAccent,                "6+\(distanceUnit.symbol)"),
+        ]
+        return HStack(spacing: 12) {
+            ForEach(Array(levels.enumerated()), id: \.offset) { _, item in
+                HStack(spacing: 4) {
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(item.color)
+                        .frame(width: 12, height: 12)
+                    Text(item.label)
+                        .font(.pretendard(.medium, size: 10))
+                        .foregroundColor(cSub)
+                }
+            }
+            Spacer()
+        }
+    }
+
+    private var streakCard: some View {
+        let streak = currentStreak()
+        return HStack(spacing: 14) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(cAccent.opacity(themeBackground.isDark ? 0.2 : 0.12))
+                    .frame(width: 40, height: 40)
+                Image(systemName: "flame.fill")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(cAccent)
+            }
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(alignment: .lastTextBaseline, spacing: 4) {
+                    Text("\(streak)")
+                        .font(.pretendard(.bold, size: 22))
+                        .foregroundColor(cText)
+                    Text(streak == 1 ? t(.calStreakDay) : t(.calStreakDays))
+                        .font(.pretendard(.medium, size: 12))
+                        .foregroundColor(cSub)
+                }
+                Text(t(.calStreakLabel))
+                    .font(.pretendard(.medium, size: 11))
+                    .foregroundColor(cSub)
+            }
+            Spacer()
+        }
+        .padding(14)
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(cCard)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(themeBackground.isDark ? Color.white.opacity(0.05) : Color(hex: "#0D1220").opacity(0.04), lineWidth: 1)
+                )
+        )
+    }
+
+    private var selectedDateSessions: some View {
+        let sessions = sessionsForSelectedDate
+        let f = DateFormatter()
+        f.locale = appLanguage.locale
+        f.dateFormat = L(.shortDateFormat, appLanguage)
+        let dateLabel = f.string(from: selectedDate)
+
+        return VStack(alignment: .leading, spacing: 10) {
+            Text(dateLabel)
+                .font(.pretendard(.semiBold, size: 13))
+                .foregroundColor(cSub)
+
+            if sessions.isEmpty {
+                HStack {
+                    Spacer()
+                    VStack(spacing: 6) {
+                        Image(systemName: "moon.zzz")
+                            .font(.system(size: 22))
+                            .foregroundColor(themeBackground.inkOff)
+                        Text(t(.calRestDay))
+                            .font(.pretendard(.medium, size: 13))
+                            .foregroundColor(themeBackground.inkOff)
+                    }
+                    .padding(.vertical, 28)
+                    Spacer()
+                }
+                .background(
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(themeBackground.cardSoft)
+                )
+            } else {
+                ForEach(Array(sessions.enumerated()), id: \.element.id) { index, session in
+                    RunSessionCard(
+                        session: session,
+                        runNumber: index + 1,
+                        distanceUnit: distanceUnit,
+                        language: appLanguage,
+                        themeBackground: themeBackground,
+                        cAccent: cAccent,
+                        cCard: cCard,
+                        cText: cText,
+                        cSub: cSub
+                    )
+                }
+            }
+        }
+    }
+
+    // MARK: - Helpers
+
+    private func getDaysInMonth() -> [DayData] {
+        let cal = Calendar.current
+        guard let range = cal.range(of: .day, in: .month, for: displayMonth),
+              let firstOfMonth = cal.date(from: cal.dateComponents([.year, .month], from: displayMonth)) else {
+            return []
+        }
+        let numDays = range.count
+        let firstWeekday = cal.component(.weekday, from: firstOfMonth) - 1
+
+        var days: [DayData] = []
+        for _ in 0..<firstWeekday {
+            days.append(DayData(number: 0, date: nil, isCurrentMonth: false))
+        }
+        for day in 1...numDays {
+            if let date = cal.date(byAdding: .day, value: day - 1, to: firstOfMonth) {
+                days.append(DayData(number: day, date: date, isCurrentMonth: true))
+            }
+        }
+        let remaining = (7 - (days.count % 7)) % 7
+        for _ in 0..<remaining {
+            days.append(DayData(number: 0, date: nil, isCurrentMonth: false))
+        }
+        return days
+    }
+
+    private func distanceKm(for date: Date) -> Double {
+        let cal = Calendar.current
+        let comps = cal.dateComponents([.year, .month, .day], from: date)
+        return allSessions
+            .filter { cal.dateComponents([.year, .month, .day], from: $0.date) == comps }
+            .reduce(0) { $0 + $1.distanceKm }
+    }
+
+    private func intensityColor(km: Double) -> Color {
+        if km <= 0 { return themeBackground.grayBg }
+        let displayKm = km * distanceUnit.conversionFromKm
+        if displayKm < 3  { return cAccent.opacity(0.25) }
+        if displayKm < 6  { return cAccent.opacity(0.55) }
+        return cAccent
+    }
+
+    private func textColorForIntensity(km: Double) -> Color {
+        if km <= 0 { return cText }
+        let displayKm = km * distanceUnit.conversionFromKm
+        // Low intensity: accent color text is more readable than white on light accent
+        if displayKm < 3 { return themeBackground.isDark ? .white.opacity(0.9) : cAccent }
+        // Medium & high: white always readable on 0.55+ opacity
+        return .white
+    }
+
+    private func isSameDay(_ a: Date, _ b: Date) -> Bool {
+        let cal = Calendar.current
+        return cal.dateComponents([.year, .month, .day], from: a) ==
+               cal.dateComponents([.year, .month, .day], from: b)
+    }
+
+    private func isToday(_ date: Date) -> Bool {
+        isSameDay(date, Date())
+    }
+
+    private func focusLastWorkoutOfMonth() {
+        let cal = Calendar.current
+        let comps = cal.dateComponents([.year, .month], from: displayMonth)
+        let inMonth = allSessions.filter { cal.dateComponents([.year, .month], from: $0.date) == comps }
+        selectedDate = inMonth.max(by: { $0.date < $1.date })?.date ?? displayMonth
+    }
+
+    private var sessionsForSelectedDate: [RunSession] {
+        allSessions.filter { isSameDay($0.date, selectedDate) }.sorted { $0.date > $1.date }
+    }
+
+    private func currentStreak() -> Int {
+        let cal = Calendar.current
+        var streak = 0
+        var checkDate = cal.startOfDay(for: Date())
+        let runDays = Set(allSessions.map { cal.startOfDay(for: $0.date) })
+        while runDays.contains(checkDate) {
+            streak += 1
+            guard let prev = cal.date(byAdding: .day, value: -1, to: checkDate) else { break }
+            checkDate = prev
+        }
+        return streak
+    }
+
+    private func monthYearString(_ date: Date) -> String {
+        let f = DateFormatter()
+        f.locale = appLanguage.locale
+        f.dateFormat = t(.monthYearDateFormat)
+        return f.string(from: date)
+    }
+
+    private func weekdayLabels() -> [String] {
+        let cal = Calendar.current
+        let symbols = cal.shortWeekdaySymbols
+        return symbols.map { String($0.prefix(1)).uppercased() }
+    }
+
+    private func previousMonth() {
+        let cal = Calendar.current
+        if let d = cal.date(byAdding: .month, value: -1, to: displayMonth) { displayMonth = d }
+    }
+
+    private func nextMonth() {
+        let cal = Calendar.current
+        if let d = cal.date(byAdding: .month, value: 1, to: displayMonth) { displayMonth = d }
+    }
+
+    private func canGoToNextMonth() -> Bool {
+        let cal = Calendar.current
+        let now = Date()
+        let d = cal.dateComponents([.year, .month], from: displayMonth)
+        let n = cal.dateComponents([.year, .month], from: now)
+        return (d.year! < n.year!) || (d.year! == n.year! && d.month! < n.month!)
+    }
+}
+
+struct DayData: Identifiable {
+    let id = UUID()
+    let number: Int
+    let date: Date?
+    let isCurrentMonth: Bool
 }
