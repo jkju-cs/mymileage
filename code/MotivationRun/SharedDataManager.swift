@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import WidgetKit
 
 class SharedDataManager {
     static let shared = SharedDataManager()
@@ -157,6 +158,91 @@ class SharedDataManager {
         userDefaults?.bool(forKey: "isPro") ?? false
     }
 
+    // MARK: - Widget Photo Gallery
+
+    private var galleryDirectoryURL: URL? {
+        FileManager.default
+            .containerURL(forSecurityApplicationGroupIdentifier: appGroupID)?
+            .appendingPathComponent("widget_gallery", isDirectory: true)
+    }
+
+    private func galleryImageURL(id: String) -> URL? {
+        galleryDirectoryURL?.appendingPathComponent("gallery_\(id).jpg")
+    }
+
+    private func ensureGalleryDirectoryExists() {
+        guard let dir = galleryDirectoryURL else { return }
+        guard !FileManager.default.fileExists(atPath: dir.path) else { return }
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+    }
+
+    private var galleryImageIDs: [String] {
+        get {
+            guard let data = userDefaults?.data(forKey: "galleryImageIDs"),
+                  let ids = try? JSONDecoder().decode([String].self, from: data) else { return [] }
+            return ids
+        }
+        set {
+            guard let data = try? JSONEncoder().encode(newValue) else { return }
+            userDefaults?.set(data, forKey: "galleryImageIDs")
+        }
+    }
+
+    var galleryCount: Int { galleryImageIDs.count }
+
+    @discardableResult
+    func saveGalleryImage(_ image: UIImage) -> String? {
+        guard galleryCount < 10 else { return nil }
+        ensureGalleryDirectoryExists()
+        let id = UUID().uuidString
+        guard let url = galleryImageURL(id: id) else { return nil }
+        let resized = image.resizedToFit(maxDimension: 1200)
+        guard let data = resized.jpegData(compressionQuality: 0.8) else { return nil }
+        try? data.write(to: url, options: .atomic)
+        var ids = galleryImageIDs
+        ids.insert(id, at: 0)
+        galleryImageIDs = ids
+        return id
+    }
+
+    func loadGalleryImages() -> [(id: String, image: UIImage)] {
+        let ids = galleryImageIDs
+        var result: [(id: String, image: UIImage)] = []
+        var orphanedIDs: [String] = []
+        for id in ids {
+            guard let url = galleryImageURL(id: id),
+                  let data = try? Data(contentsOf: url),
+                  let image = UIImage(data: data) else {
+                orphanedIDs.append(id)
+                continue
+            }
+            result.append((id: id, image: image))
+        }
+        if !orphanedIDs.isEmpty {
+            galleryImageIDs = result.map { $0.id }
+        }
+        return result
+    }
+
+    func deleteGalleryImage(id: String) {
+        if let url = galleryImageURL(id: id) {
+            try? FileManager.default.removeItem(at: url)
+        }
+        galleryImageIDs = galleryImageIDs.filter { $0 != id }
+    }
+
+    func setActiveGalleryID(_ id: String?) {
+        if let id = id {
+            userDefaults?.set(id, forKey: "activeGalleryID")
+        } else {
+            userDefaults?.removeObject(forKey: "activeGalleryID")
+        }
+    }
+
+    func getActiveGalleryID() -> String? {
+        userDefaults?.string(forKey: "activeGalleryID")
+    }
+
     // MARK: - Widget Background Image
 
     /// App Group 컨테이너 내 위젯 배경 이미지 파일 URL
@@ -176,6 +262,7 @@ class SharedDataManager {
         let isDark = resized.averageBrightness() < 0.55
         userDefaults?.set(isDark, forKey: "widgetBgIsDark")
         print("🖼️ [SharedDataManager] 위젯 배경 이미지 저장 완료 (isDark: \(isDark))")
+        WidgetCenter.shared.reloadAllTimelines()
     }
 
     /// 위젯 배경 이미지 삭제
@@ -185,6 +272,7 @@ class SharedDataManager {
         userDefaults?.removeObject(forKey: "hasWidgetBgImage")
         userDefaults?.removeObject(forKey: "widgetBgIsDark")
         print("🗑️ [SharedDataManager] 위젯 배경 이미지 삭제 완료")
+        WidgetCenter.shared.reloadAllTimelines()
     }
 
     /// 위젯 배경 이미지 존재 여부
@@ -211,15 +299,32 @@ class SharedDataManager {
         return try? Data(contentsOf: url)
     }
 
+    // MARK: - WorkoutSourcePreference
+
+    func saveWorkoutSourcePreference(_ pref: WorkoutSourcePreference) {
+        guard let data = try? JSONEncoder().encode(pref) else { return }
+        userDefaults?.set(data, forKey: "workoutSourcePreference")
+    }
+
+    func getWorkoutSourcePreference() -> WorkoutSourcePreference {
+        guard let data = userDefaults?.data(forKey: "workoutSourcePreference"),
+              let pref = try? JSONDecoder().decode(WorkoutSourcePreference.self, from: data) else {
+            return WorkoutSourcePreference()
+        }
+        return pref
+    }
+
     // MARK: - 전체 초기화
 
     func resetAll() {
         let keys = ["monthlyStats", "goalType", "goalTarget", "runFrequency",
                     "themeAccent", "themeBackground", "distanceUnit",
                     "notificationSettings", "hasWidgetBgImage",
-                    "widgetBgIsDark", "widgetDesign"]
+                    "widgetBgIsDark", "widgetDesign", "workoutSourcePreference",
+                    "galleryImageIDs", "activeGalleryID"]
         keys.forEach { userDefaults?.removeObject(forKey: $0) }
         if let url = widgetBgImageURL { try? FileManager.default.removeItem(at: url) }
+        if let dir = galleryDirectoryURL { try? FileManager.default.removeItem(at: dir) }
         UserDefaults.standard.removeObject(forKey: "hkAuthRequested")
         print("🗑️ [SharedDataManager] 전체 데이터 초기화 완료")
     }
