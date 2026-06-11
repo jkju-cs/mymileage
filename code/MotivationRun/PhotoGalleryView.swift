@@ -24,7 +24,7 @@ struct PhotoGalleryView: View {
 
     private func t(_ key: LK) -> String { L(key, language) }
 
-    private let gridColumns = [
+    private static let gridColumns = [
         GridItem(.flexible(), spacing: 4),
         GridItem(.flexible(), spacing: 4),
         GridItem(.flexible(), spacing: 4)
@@ -46,7 +46,7 @@ struct PhotoGalleryView: View {
                             .foregroundColor(bg.subText)
                             .padding(.top, 48)
                     } else {
-                        LazyVGrid(columns: gridColumns, spacing: 4) {
+                        LazyVGrid(columns: Self.gridColumns, spacing: 4) {
                             ForEach(galleryItems, id: \.id) { item in
                                 galleryCell(item: item)
                             }
@@ -86,9 +86,8 @@ struct PhotoGalleryView: View {
             if let rawImage = pickedRawImage {
                 WidgetImageCropView(image: rawImage, accentColor: accentColor, language: language) { croppedImage in
                     SharedDataManager.shared.saveWidgetBackgroundImage(croppedImage)
-                    WidgetCenter.shared.reloadAllTimelines()
                     if cropSourceID == nil {
-                        if let newID = SharedDataManager.shared.saveGalleryImage(pickedRawImage!) {
+                        if let newID = SharedDataManager.shared.saveGalleryImage(rawImage) {
                             SharedDataManager.shared.setActiveGalleryID(newID)
                             activeGalleryID = newID
                         }
