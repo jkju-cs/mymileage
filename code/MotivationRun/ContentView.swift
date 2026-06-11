@@ -5,7 +5,6 @@
 
 import SwiftUI
 import UIKit
-import PhotosUI
 import StoreKit
 import WidgetKit
 
@@ -1292,7 +1291,7 @@ struct SettingsTabView: View {
                                                     .scaledToFill()
                                                     .frame(width: 36, height: 17)
                                                     .clipped()
-                                                    .cornerRadius(4)
+                                                    .clipShape(RoundedRectangle(cornerRadius: 4))
                                             }
                                             Image(systemName: "chevron.right")
                                                 .font(.system(size: 12, weight: .semibold))
