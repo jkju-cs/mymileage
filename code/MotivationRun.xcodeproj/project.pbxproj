@@ -34,6 +34,14 @@
 		AABBCC00112233445566770E /* LogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABBCC00112233445566770D /* LogView.swift */; };
 		AABBCC001122334455667710 /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABBCC00112233445566770F /* StoreManager.swift */; };
 		AABBCC001122334455667713 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AABBCC001122334455667712 /* StoreKit.framework */; };
+		AABBCC001122334455667731 /* Pretendard-Light.otf in Resources */ = {isa = PBXBuildFile; fileRef = AABBCC001122334455667721 /* Pretendard-Light.otf */; };
+		AABBCC001122334455667732 /* Pretendard-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = AABBCC001122334455667722 /* Pretendard-Regular.otf */; };
+		AABBCC001122334455667733 /* Pretendard-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = AABBCC001122334455667723 /* Pretendard-Medium.otf */; };
+		AABBCC001122334455667734 /* Pretendard-SemiBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = AABBCC001122334455667724 /* Pretendard-SemiBold.otf */; };
+		AABBCC001122334455667735 /* Pretendard-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = AABBCC001122334455667725 /* Pretendard-Bold.otf */; };
+		AABBCC001122334455667736 /* Pretendard-ExtraBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = AABBCC001122334455667726 /* Pretendard-ExtraBold.otf */; };
+		AABBCC001122334455667741 /* ModernComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABBCC001122334455667740 /* ModernComponents.swift */; };
+		AABBCC001122334455667743 /* PhotoGalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABBCC001122334455667742 /* PhotoGalleryView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -105,6 +113,14 @@
 		AABBCC00112233445566770F /* StoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
 		AABBCC001122334455667711 /* Products.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = Products.storekit; sourceTree = "<group>"; };
 		AABBCC001122334455667712 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
+		AABBCC001122334455667721 /* Pretendard-Light.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-Light.otf"; sourceTree = "<group>"; };
+		AABBCC001122334455667722 /* Pretendard-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-Regular.otf"; sourceTree = "<group>"; };
+		AABBCC001122334455667723 /* Pretendard-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-Medium.otf"; sourceTree = "<group>"; };
+		AABBCC001122334455667724 /* Pretendard-SemiBold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-SemiBold.otf"; sourceTree = "<group>"; };
+		AABBCC001122334455667725 /* Pretendard-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-Bold.otf"; sourceTree = "<group>"; };
+		AABBCC001122334455667726 /* Pretendard-ExtraBold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pretendard-ExtraBold.otf"; sourceTree = "<group>"; };
+		AABBCC001122334455667740 /* ModernComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModernComponents.swift; sourceTree = "<group>"; };
+		AABBCC001122334455667742 /* PhotoGalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoGalleryView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -178,12 +194,15 @@
 				AABBCC00112233445566770D /* LogView.swift */,
 				AABBCC00112233445566770F /* StoreManager.swift */,
 				AABBCC001122334455667711 /* Products.storekit */,
+				AABBCC001122334455667740 /* ModernComponents.swift */,
+				AABBCC001122334455667742 /* PhotoGalleryView.swift */,
 				66B64C272F434FC80046DB87 /* SharedDataManager.swift */,
 				66B64BD92F3B54AD0046DB87 /* MotivationRunApp.swift */,
 				66B64BDB2F3B54AD0046DB87 /* ContentView.swift */,
 				66B64C032F3EB1EE0046DB87 /* Info.plist */,
 				66B64BDD2F3B54B30046DB87 /* Assets.xcassets */,
 				66B64BDF2F3B54B30046DB87 /* Preview Content */,
+				AABBCC001122334455667720 /* Fonts */,
 			);
 			path = MotivationRun;
 			sourceTree = "<group>";
@@ -194,6 +213,19 @@
 				66B64BE02F3B54B30046DB87 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		AABBCC001122334455667720 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				AABBCC001122334455667721 /* Pretendard-Light.otf */,
+				AABBCC001122334455667722 /* Pretendard-Regular.otf */,
+				AABBCC001122334455667723 /* Pretendard-Medium.otf */,
+				AABBCC001122334455667724 /* Pretendard-SemiBold.otf */,
+				AABBCC001122334455667725 /* Pretendard-Bold.otf */,
+				AABBCC001122334455667726 /* Pretendard-ExtraBold.otf */,
+			);
+			path = Fonts;
 			sourceTree = "<group>";
 		};
 		66B64BE92F3B54B30046DB87 /* MotivationRunTests */ = {
@@ -372,6 +404,12 @@
 			files = (
 				66B64BE12F3B54B30046DB87 /* Preview Assets.xcassets in Resources */,
 				66B64BDE2F3B54B30046DB87 /* Assets.xcassets in Resources */,
+				AABBCC001122334455667731 /* Pretendard-Light.otf in Resources */,
+				AABBCC001122334455667732 /* Pretendard-Regular.otf in Resources */,
+				AABBCC001122334455667733 /* Pretendard-Medium.otf in Resources */,
+				AABBCC001122334455667734 /* Pretendard-SemiBold.otf in Resources */,
+				AABBCC001122334455667735 /* Pretendard-Bold.otf in Resources */,
+				AABBCC001122334455667736 /* Pretendard-ExtraBold.otf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -412,6 +450,8 @@
 				66B64BDC2F3B54AD0046DB87 /* ContentView.swift in Sources */,
 				AABBCC00112233445566770E /* LogView.swift in Sources */,
 				AABBCC001122334455667710 /* StoreManager.swift in Sources */,
+				AABBCC001122334455667741 /* ModernComponents.swift in Sources */,
+				AABBCC001122334455667743 /* PhotoGalleryView.swift in Sources */,
 				66B64BDA2F3B54AD0046DB87 /* MotivationRunApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
