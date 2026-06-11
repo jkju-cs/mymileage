@@ -5,7 +5,6 @@
 
 import SwiftUI
 import PhotosUI
-import WidgetKit
 
 struct PhotoGalleryView: View {
     let accentColor: Color
@@ -18,7 +17,7 @@ struct PhotoGalleryView: View {
     @State private var pickedRawImage: UIImage?
     @State private var showCropSheet: Bool = false
     @State private var cropSourceID: String? = nil
-    @State private var activeGalleryID: String? = SharedDataManager.shared.getActiveGalleryID()
+    @State private var activeGalleryID: String? = nil
     @State private var isShowingToast: Bool = false
     @State private var toastMessage: String = ""
 
@@ -64,7 +63,7 @@ struct PhotoGalleryView: View {
                     .foregroundColor(.white)
                     .padding(.horizontal, 24).padding(.vertical, 12)
                     .background(Color.black.opacity(0.78))
-                    .cornerRadius(24)
+                    .clipShape(RoundedRectangle(cornerRadius: 24))
                     .padding(.bottom, 32)
                     .transition(.opacity.combined(with: .move(edge: .bottom)))
             }
@@ -223,7 +222,6 @@ struct PhotoGalleryView: View {
         SharedDataManager.shared.deleteGalleryImage(id: id)
         if id == activeGalleryID {
             SharedDataManager.shared.removeWidgetBackgroundImage()
-            WidgetCenter.shared.reloadAllTimelines()
             activeGalleryID = nil
         }
         withAnimation {
