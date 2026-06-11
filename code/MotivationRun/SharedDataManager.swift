@@ -192,14 +192,14 @@ class SharedDataManager {
 
     @discardableResult
     func saveGalleryImage(_ image: UIImage) -> String? {
-        guard galleryCount < 10 else { return nil }
+        var ids = galleryImageIDs
+        guard ids.count < 10 else { return nil }
         ensureGalleryDirectoryExists()
         let id = UUID().uuidString
         guard let url = galleryImageURL(id: id) else { return nil }
         let resized = image.resizedToFit(maxDimension: 1200)
         guard let data = resized.jpegData(compressionQuality: 0.8) else { return nil }
-        try? data.write(to: url, options: .atomic)
-        var ids = galleryImageIDs
+        guard (try? data.write(to: url, options: .atomic)) != nil else { return nil }
         ids.insert(id, at: 0)
         galleryImageIDs = ids
         return id
@@ -208,17 +208,15 @@ class SharedDataManager {
     func loadGalleryImages() -> [(id: String, image: UIImage)] {
         let ids = galleryImageIDs
         var result: [(id: String, image: UIImage)] = []
-        var orphanedIDs: [String] = []
         for id in ids {
             guard let url = galleryImageURL(id: id),
                   let data = try? Data(contentsOf: url),
                   let image = UIImage(data: data) else {
-                orphanedIDs.append(id)
                 continue
             }
             result.append((id: id, image: image))
         }
-        if !orphanedIDs.isEmpty {
+        if result.count < ids.count {
             galleryImageIDs = result.map { $0.id }
         }
         return result
@@ -229,6 +227,7 @@ class SharedDataManager {
             try? FileManager.default.removeItem(at: url)
         }
         galleryImageIDs = galleryImageIDs.filter { $0 != id }
+        if getActiveGalleryID() == id { setActiveGalleryID(nil) }
     }
 
     func setActiveGalleryID(_ id: String?) {
