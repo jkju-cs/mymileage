@@ -922,13 +922,11 @@ struct HelpView: View {
                             cCard: cCard,
                             cText: cText
                         ) {
-                            VStack(alignment: .leading, spacing: 4) {
+                            VStack(alignment: .leading, spacing: 0) {
                                 helpTipRow(text: t(.helpTip1))
                                 helpTipRow(text: t(.helpTip2))
                                 helpTipRow(text: t(.helpTip3))
                             }
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 10)
                         }
                     }
                     .padding(16)
@@ -954,17 +952,9 @@ struct HelpView: View {
             .padding(.horizontal, 14)
     }
 
-    private func helpStepRow(num: String, title: String, desc: String) -> some View {
+    private func helpRow<Badge: View>(title: String, desc: String, @ViewBuilder badge: () -> Badge) -> some View {
         HStack(alignment: .top, spacing: 10) {
-            ZStack {
-                Circle()
-                    .fill(Color(hex: "#F5C800"))
-                    .frame(width: 20, height: 20)
-                Text(num)
-                    .font(.system(size: 10, weight: .black))
-                    .foregroundColor(Color(hex: "#111111"))
-            }
-            .padding(.top, 1)
+            badge().padding(.top, 1)
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(.pretendard(.semibold, size: 13))
@@ -980,8 +970,21 @@ struct HelpView: View {
         .padding(.vertical, 10)
     }
 
+    private func helpStepRow(num: String, title: String, desc: String) -> some View {
+        helpRow(title: title, desc: desc) {
+            ZStack {
+                Circle()
+                    .fill(Color(hex: "#F5C800"))
+                    .frame(width: 20, height: 20)
+                Text(num)
+                    .font(.system(size: 10, weight: .black))
+                    .foregroundColor(Color(hex: "#111111"))
+            }
+        }
+    }
+
     private func helpFeatureRow(icon: String, iconColor: Color, iconBg: Color, title: String, desc: String) -> some View {
-        HStack(alignment: .top, spacing: 10) {
+        helpRow(title: title, desc: desc) {
             ZStack {
                 RoundedRectangle(cornerRadius: 6)
                     .fill(iconBg)
@@ -990,20 +993,7 @@ struct HelpView: View {
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundColor(iconColor)
             }
-            .padding(.top, 1)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.pretendard(.semibold, size: 13))
-                    .foregroundColor(cText)
-                Text(desc)
-                    .font(.pretendard(.regular, size: 12))
-                    .foregroundColor(cSub)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            Spacer()
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 10)
     }
 
     private func helpTipRow(text: String) -> some View {
@@ -1018,6 +1008,8 @@ struct HelpView: View {
                 .fixedSize(horizontal: false, vertical: true)
             Spacer()
         }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
     }
 }
 
