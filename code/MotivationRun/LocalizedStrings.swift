@@ -906,26 +906,29 @@ private enum Strings {
             .widgetGalleryDone:         "完成",
             .widgetGalleryMaxReached:   "最多可保存10张照片",
             .widgetGalleryEmpty:        "添加您的第一张照片",
-            .helpContent: """
-MyMileage 帮助您实现每月跑步目标。
-
-开始使用
-1. 打开设置标签页，点击「设置目标」选择目标类型（距离、卡路里或时长）并输入月度目标值。
-2. 点击「同步 Apple Health」授权并导入跑步数据。
-3. 仪表盘显示每日柱状图和月度摘要，方便查看进度。
-
-主要功能
-• 里程目标 — 当前月份会显示本月目标和剩余天数，一目了然。
-• 跑步频率 — 选择每天、隔天或每3天，App 自动计算每次所需量。
-• 距离单位 — 在设置中切换千米和英里，目标将自动转换。
-• 小组件 — 将小组件添加到主屏幕。可选择4种布局（极简、紧凑、均衡、完整），还可设置自定义背景照片。
-• 通知 — 月末7天、3天或1天前未完成目标时收到提醒。
-
-使用技巧
-• 定期同步以保持数据最新。
-• 小组件每小时自动更新一次。
-• 在设置标签页中可更改主题颜色、语言等。
-""",
+            .helpSectionStart:      "快速开始",
+            .helpSectionFeatures:   "主要功能",
+            .helpSectionWidget:     "小组件 & 通知",
+            .helpSectionTips:       "使用技巧",
+            .helpStep1Title:        "设置目标",
+            .helpStep1Desc:         "在设置标签页中选择目标类型——距离、卡路里或时长——然后输入本月目标值。",
+            .helpStep2Title:        "同步 Apple Health",
+            .helpStep2Desc:         "授予权限后，跑步数据将自动导入。",
+            .helpStep3Title:        "查看仪表盘",
+            .helpStep3Desc:         "通过每日柱状图和月度摘要，一目了然地查看进度。",
+            .helpFeatGoalTitle:     "里程目标",
+            .helpFeatGoalDesc:      "本月目标和剩余天数在仪表盘上一目了然。",
+            .helpFeatFreqTitle:     "跑步频率",
+            .helpFeatFreqDesc:      "选择每天、每2天或每3天跑一次，每次所需目标量将自动计算。",
+            .helpFeatUnitTitle:     "距离单位",
+            .helpFeatUnitDesc:      "可在公里和英里之间自由切换，目标值会自动换算。",
+            .helpWidgetTitle:       "主屏幕小组件",
+            .helpWidgetDesc:        "从4种布局中选择——极简、紧凑、均衡或完整。Pro 版本可自定义背景图片。",
+            .helpNotifTitle:        "目标提醒",
+            .helpNotifDesc:         "如果目标尚未完成，将在月末7天、3天和1天前发送通知提醒。",
+            .helpTip1:              "定期同步以保持数据最新。",
+            .helpTip2:              "小组件每小时自动刷新一次。",
+            .helpTip3:              "可在设置标签页中自定义主题颜色和语言。",
         ],
 
         // ─────────── SPANISH ───────────
