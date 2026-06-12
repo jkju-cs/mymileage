@@ -471,7 +471,7 @@ private enum Strings {
             .helpSectionStart:      "시작하기",
             .helpSectionFeatures:   "기본 기능",
             .helpSectionWidget:     "위젯 & 알림",
-            .helpSectionTips:       "도움말",
+            .helpSectionTips:       "팁",
             .helpStep1Title:        "목표 설정",
             .helpStep1Desc:         "설정 탭에서 거리·칼로리·시간 중 목표 유형을 선택하고, 이번 달 목표값을 입력하세요.",
             .helpStep2Title:        "Apple Health 동기화",
