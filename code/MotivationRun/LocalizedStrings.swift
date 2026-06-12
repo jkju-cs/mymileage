@@ -322,26 +322,29 @@ private enum Strings {
             .widgetGalleryDone:         "Done",
             .widgetGalleryMaxReached:   "Up to 10 photos can be saved",
             .widgetGalleryEmpty:        "Add your first photo",
-            .helpContent: """
-MyMileage helps you hit your monthly running goal.
-
-Getting Started
-1. Open the Settings tab and tap "Set Goal" to choose your goal type (distance, calories, or duration) and set a monthly target.
-2. Tap "Sync Apple Health" to grant permission and import your running data.
-3. The Dashboard shows a daily bar chart and monthly summary for your progress.
-
-Key Features
-• Mileage Goal — The current month displays your goal and remaining days at a glance.
-• Run Frequency — Choose daily, every 2 days, or every 3 days. The app calculates how much you need per session.
-• Distance Unit — Switch between km and miles in Settings. Your goal converts automatically.
-• Widget — Add the widget to your Home Screen. Choose from 4 layouts (Minimal, Compact, Balanced, Complete) and set a custom background photo.
-• Notifications — Get reminders 7, 3, or 1 day before month-end if you haven't reached your goal yet.
-
-Tips
-• Sync regularly to keep your data up to date.
-• The widget refreshes automatically every hour.
-• Use the Settings tab to customize theme colors, language, and more.
-""",
+            .helpSectionStart:      "Getting Started",
+            .helpSectionFeatures:   "Core Features",
+            .helpSectionWidget:     "Widget & Notifications",
+            .helpSectionTips:       "Tips",
+            .helpStep1Title:        "Set Your Goal",
+            .helpStep1Desc:         "In the Settings tab, choose your goal type — distance, calories, or duration — then enter your monthly target.",
+            .helpStep2Title:        "Sync Apple Health",
+            .helpStep2Desc:         "Grant permission and your running data will be imported automatically.",
+            .helpStep3Title:        "Check Your Dashboard",
+            .helpStep3Desc:         "View daily bar charts and your monthly summary to track progress at a glance.",
+            .helpFeatGoalTitle:     "Mileage Goal",
+            .helpFeatGoalDesc:      "Your monthly target and remaining days are shown on the dashboard at a glance.",
+            .helpFeatFreqTitle:     "Run Frequency",
+            .helpFeatFreqDesc:      "Choose daily, every 2 days, or every 3 days — the required amount per session is calculated automatically.",
+            .helpFeatUnitTitle:     "Distance Unit",
+            .helpFeatUnitDesc:      "Switch freely between km and miles — your goal value converts automatically.",
+            .helpWidgetTitle:       "Home Screen Widget",
+            .helpWidgetDesc:        "Choose from 4 layouts — Minimal, Compact, Balanced, or Complete. Set a custom background photo with Pro.",
+            .helpNotifTitle:        "Goal Reminders",
+            .helpNotifDesc:         "Receive notifications 7, 3, and 1 day before month-end if your goal hasn't been reached yet.",
+            .helpTip1:              "Sync regularly to keep your data up to date.",
+            .helpTip2:              "The widget refreshes automatically every hour.",
+            .helpTip3:              "Customize your theme colors and language in the Settings tab.",
         ],
 
         // ─────────── KOREAN ───────────
