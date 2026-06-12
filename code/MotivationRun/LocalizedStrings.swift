@@ -468,26 +468,29 @@ private enum Strings {
             .widgetGalleryDone:         "완료",
             .widgetGalleryMaxReached:   "최대 10장까지 저장할 수 있습니다",
             .widgetGalleryEmpty:        "사진을 추가해보세요",
-            .helpContent: """
-MyMileage는 이번 달 러닝 목표를 달성할 수 있도록 도와주는 앱입니다.
-
-시작하기
-1. 설정 탭에서 '목표 설정'을 탭해 목표 유형(거리·칼로리·시간)과 월간 목표값을 입력하세요.
-2. 'Apple Health 동기화'를 탭해 권한을 허용하고 러닝 데이터를 불러오세요.
-3. 대시보드에서 일별 바 차트와 월간 요약으로 진행 상황을 확인하세요.
-
-주요 기능
-• 마일리지 목표 — 현재 월에는 이번 달 목표와 남은 일수가 한눈에 표시됩니다.
-• 러닝 빈도 — 매일·격일·3일마다 중 선택하면 회당 필요량이 자동 계산됩니다.
-• 거리 단위 — 설정에서 km와 마일을 전환할 수 있고, 목표값은 자동 변환됩니다.
-• 위젯 — 홈 화면에 위젯을 추가하세요. 4가지 레이아웃(미니멀, 컴팩트, 밸런스, 컴플리트) 중 선택하고, 배경 사진도 설정할 수 있습니다.
-• 알림 — 월말 7일·3일·1일 전에 목표 미달성 리마인더를 받을 수 있습니다.
-
-도움말
-• 정기적으로 동기화해 데이터를 최신 상태로 유지하세요.
-• 위젯은 1시간마다 자동으로 갱신됩니다.
-• 설정 탭에서 테마 색상, 언어 등을 변경할 수 있습니다.
-""",
+            .helpSectionStart:      "시작하기",
+            .helpSectionFeatures:   "기본 기능",
+            .helpSectionWidget:     "위젯 & 알림",
+            .helpSectionTips:       "도움말",
+            .helpStep1Title:        "목표 설정",
+            .helpStep1Desc:         "설정 탭에서 거리·칼로리·시간 중 목표 유형을 선택하고, 이번 달 목표값을 입력하세요.",
+            .helpStep2Title:        "Apple Health 동기화",
+            .helpStep2Desc:         "권한을 허용하면 러닝 데이터를 자동으로 불러옵니다.",
+            .helpStep3Title:        "대시보드 확인",
+            .helpStep3Desc:         "일별 바 차트와 월간 요약으로 진행 상황을 한눈에 확인할 수 있습니다.",
+            .helpFeatGoalTitle:     "마일리지 목표",
+            .helpFeatGoalDesc:      "이번 달 목표와 남은 일수를 대시보드에서 바로 확인할 수 있습니다.",
+            .helpFeatFreqTitle:     "러닝 빈도",
+            .helpFeatFreqDesc:      "매일·격일·3일마다 중에서 선택하면 회당 필요한 목표량을 자동으로 계산해드립니다.",
+            .helpFeatUnitTitle:     "거리 단위",
+            .helpFeatUnitDesc:      "km와 마일 사이를 자유롭게 전환할 수 있고, 목표값도 자동으로 변환됩니다.",
+            .helpWidgetTitle:       "홈 화면 위젯",
+            .helpWidgetDesc:        "4가지 레이아웃 중 원하는 스타일을 선택하고, Pro 버전에서는 배경 사진도 설정할 수 있습니다.",
+            .helpNotifTitle:        "목표 리마인더",
+            .helpNotifDesc:         "월말 7일·3일·1일 전에 목표 달성 현황을 알림으로 알려드립니다.",
+            .helpTip1:              "정기적으로 동기화해 최신 데이터를 유지하세요.",
+            .helpTip2:              "위젯은 1시간마다 자동으로 갱신됩니다.",
+            .helpTip3:              "설정 탭에서 테마 색상과 언어를 변경할 수 있습니다.",
         ],
 
         // ─────────── GERMAN ───────────
