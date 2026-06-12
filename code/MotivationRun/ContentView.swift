@@ -851,6 +851,11 @@ struct HelpView: View {
     let cText: Color
     let cSub: Color
 
+    @State private var startExpanded = false
+    @State private var featuresExpanded = false
+    @State private var widgetExpanded = false
+    @State private var tipsExpanded = false
+
     private func t(_ key: LK) -> String { L(key, language) }
 
     var body: some View {
@@ -858,15 +863,75 @@ struct HelpView: View {
             ZStack {
                 cBg.ignoresSafeArea()
                 ScrollView(showsIndicators: false) {
-                    Text(t(.helpContent))
-                        .font(.system(size: 15))
-                        .foregroundColor(cText)
-                        .lineSpacing(5)
-                        .padding(20)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(cCard)
-                        .cornerRadius(16)
-                        .padding(16)
+                    VStack(spacing: 10) {
+                        AccordionSection(
+                            icon: "play.circle.fill",
+                            iconColor: Color(hex: "#4ade80"),
+                            iconBgColor: Color(hex: "#16a34a").opacity(0.13),
+                            title: t(.helpSectionStart),
+                            isExpanded: $startExpanded,
+                            cCard: cCard,
+                            cText: cText
+                        ) {
+                            VStack(spacing: 0) {
+                                helpStepRow(num: "1", title: t(.helpStep1Title), desc: t(.helpStep1Desc))
+                                helpDivider
+                                helpStepRow(num: "2", title: t(.helpStep2Title), desc: t(.helpStep2Desc))
+                                helpDivider
+                                helpStepRow(num: "3", title: t(.helpStep3Title), desc: t(.helpStep3Desc))
+                            }
+                        }
+                        AccordionSection(
+                            icon: "star.fill",
+                            iconColor: Color(hex: "#60a5fa"),
+                            iconBgColor: Color(hex: "#2563eb").opacity(0.13),
+                            title: t(.helpSectionFeatures),
+                            isExpanded: $featuresExpanded,
+                            cCard: cCard,
+                            cText: cText
+                        ) {
+                            VStack(spacing: 0) {
+                                helpFeatureRow(icon: "flag.checkered", iconColor: Color(hex: "#F5C800"), iconBg: Color(hex: "#F5C800").opacity(0.13), title: t(.helpFeatGoalTitle), desc: t(.helpFeatGoalDesc))
+                                helpDivider
+                                helpFeatureRow(icon: "arrow.2.circlepath", iconColor: Color(hex: "#4ade80"), iconBg: Color(hex: "#4ade80").opacity(0.13), title: t(.helpFeatFreqTitle), desc: t(.helpFeatFreqDesc))
+                                helpDivider
+                                helpFeatureRow(icon: "ruler", iconColor: Color(hex: "#60a5fa"), iconBg: Color(hex: "#60a5fa").opacity(0.13), title: t(.helpFeatUnitTitle), desc: t(.helpFeatUnitDesc))
+                            }
+                        }
+                        AccordionSection(
+                            icon: "bell.and.waves.left.and.right.fill",
+                            iconColor: Color(hex: "#a78bfa"),
+                            iconBgColor: Color(hex: "#7c3aed").opacity(0.13),
+                            title: t(.helpSectionWidget),
+                            isExpanded: $widgetExpanded,
+                            cCard: cCard,
+                            cText: cText
+                        ) {
+                            VStack(spacing: 0) {
+                                helpFeatureRow(icon: "square.grid.2x2.fill", iconColor: Color(hex: "#a78bfa"), iconBg: Color(hex: "#a78bfa").opacity(0.13), title: t(.helpWidgetTitle), desc: t(.helpWidgetDesc))
+                                helpDivider
+                                helpFeatureRow(icon: "bell.fill", iconColor: Color(hex: "#fb923c"), iconBg: Color(hex: "#fb923c").opacity(0.13), title: t(.helpNotifTitle), desc: t(.helpNotifDesc))
+                            }
+                        }
+                        AccordionSection(
+                            icon: "lightbulb.fill",
+                            iconColor: Color(hex: "#fbbf24"),
+                            iconBgColor: Color(hex: "#ca8a04").opacity(0.13),
+                            title: t(.helpSectionTips),
+                            isExpanded: $tipsExpanded,
+                            cCard: cCard,
+                            cText: cText
+                        ) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                helpTipRow(text: t(.helpTip1))
+                                helpTipRow(text: t(.helpTip2))
+                                helpTipRow(text: t(.helpTip3))
+                            }
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 10)
+                        }
+                    }
+                    .padding(16)
                 }
             }
             .navigationTitle(t(.helpTitle))
@@ -880,6 +945,79 @@ struct HelpView: View {
             }
         }
         .preferredColorScheme(nil)
+    }
+
+    private var helpDivider: some View {
+        Rectangle()
+            .fill(Color.white.opacity(0.06))
+            .frame(height: 1)
+            .padding(.horizontal, 14)
+    }
+
+    private func helpStepRow(num: String, title: String, desc: String) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            ZStack {
+                Circle()
+                    .fill(Color(hex: "#F5C800"))
+                    .frame(width: 20, height: 20)
+                Text(num)
+                    .font(.system(size: 10, weight: .black))
+                    .foregroundColor(Color(hex: "#111111"))
+            }
+            .padding(.top, 1)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.pretendard(.semibold, size: 13))
+                    .foregroundColor(cText)
+                Text(desc)
+                    .font(.pretendard(.regular, size: 12))
+                    .foregroundColor(cSub)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer()
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+    }
+
+    private func helpFeatureRow(icon: String, iconColor: Color, iconBg: Color, title: String, desc: String) -> some View {
+        HStack(alignment: .top, spacing: 10) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(iconBg)
+                    .frame(width: 24, height: 24)
+                Image(systemName: icon)
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(iconColor)
+            }
+            .padding(.top, 1)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.pretendard(.semibold, size: 13))
+                    .foregroundColor(cText)
+                Text(desc)
+                    .font(.pretendard(.regular, size: 12))
+                    .foregroundColor(cSub)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer()
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+    }
+
+    private func helpTipRow(text: String) -> some View {
+        HStack(alignment: .top, spacing: 8) {
+            Circle()
+                .fill(Color(hex: "#F5C800"))
+                .frame(width: 5, height: 5)
+                .padding(.top, 5)
+            Text(text)
+                .font(.pretendard(.regular, size: 12))
+                .foregroundColor(cSub)
+                .fixedSize(horizontal: false, vertical: true)
+            Spacer()
+        }
     }
 }
 
