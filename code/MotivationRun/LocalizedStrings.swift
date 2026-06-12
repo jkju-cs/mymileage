@@ -760,26 +760,29 @@ private enum Strings {
             .widgetGalleryDone:         "Terminé",
             .widgetGalleryMaxReached:   "Vous pouvez enregistrer jusqu'à 10 photos",
             .widgetGalleryEmpty:        "Ajoutez votre première photo",
-            .helpContent: """
-MyMileage vous aide à atteindre votre objectif mensuel de course.
-
-Pour commencer
-1. Ouvrez l'onglet Réglages et appuyez sur « Définir l'objectif » pour choisir le type (distance, calories ou durée) et la cible mensuelle.
-2. Appuyez sur « Sync Apple Health » pour accorder la permission et importer vos données de course.
-3. Le tableau de bord affiche un graphique à barres quotidien et un résumé mensuel.
-
-Fonctionnalités principales
-• Objectif kilométrique — Le mois en cours affiche votre objectif et les jours restants en un coup d'œil.
-• Fréquence de course — Choisissez quotidien, tous les 2 jours ou tous les 3 jours. L'app calcule automatiquement la quantité requise par session.
-• Unité de distance — Passez entre km et miles dans les réglages. L'objectif se convertit automatiquement.
-• Widget — Ajoutez le widget à l'écran d'accueil. Choisissez parmi 4 dispositions (Minimal, Compact, Équilibré, Complet) et définissez une photo de fond personnalisée.
-• Notifications — Rappels 7, 3 ou 1 jour avant la fin du mois si l'objectif n'est pas atteint.
-
-Conseils
-• Synchronisez régulièrement pour maintenir votre progression à jour.
-• Le widget se met à jour automatiquement toutes les heures.
-• Utilisez l'onglet Réglages pour changer les couleurs, la langue et plus.
-""",
+            .helpSectionStart:      "Démarrer",
+            .helpSectionFeatures:   "Fonctionnalités",
+            .helpSectionWidget:     "Widget & Notifications",
+            .helpSectionTips:       "Conseils",
+            .helpStep1Title:        "Définir votre objectif",
+            .helpStep1Desc:         "Dans l'onglet Réglages, choisissez votre type d'objectif — distance, calories ou durée — puis saisissez votre cible mensuelle.",
+            .helpStep2Title:        "Synchroniser Apple Health",
+            .helpStep2Desc:         "Accordez l'autorisation et vos données de course seront importées automatiquement.",
+            .helpStep3Title:        "Consulter le tableau de bord",
+            .helpStep3Desc:         "Visualisez les graphiques journaliers et votre résumé mensuel pour suivre votre progression en un coup d'œil.",
+            .helpFeatGoalTitle:     "Objectif kilométrique",
+            .helpFeatGoalDesc:      "Votre objectif mensuel et les jours restants sont affichés en un coup d'œil sur le tableau de bord.",
+            .helpFeatFreqTitle:     "Fréquence de course",
+            .helpFeatFreqDesc:      "Choisissez tous les jours, tous les 2 jours ou tous les 3 jours — la quantité requise par séance est calculée automatiquement.",
+            .helpFeatUnitTitle:     "Unité de distance",
+            .helpFeatUnitDesc:      "Basculez librement entre km et miles — votre valeur d'objectif se convertit automatiquement.",
+            .helpWidgetTitle:       "Widget écran d'accueil",
+            .helpWidgetDesc:        "Choisissez parmi 4 dispositions — Minimal, Compact, Équilibré ou Complet. Définissez une photo de fond personnalisée avec Pro.",
+            .helpNotifTitle:        "Rappels d'objectif",
+            .helpNotifDesc:         "Recevez des notifications 7, 3 et 1 jour avant la fin du mois si votre objectif n'est pas encore atteint.",
+            .helpTip1:              "Synchronisez régulièrement pour maintenir vos données à jour.",
+            .helpTip2:              "Le widget se rafraîchit automatiquement toutes les heures.",
+            .helpTip3:              "Personnalisez les couleurs du thème et la langue dans l'onglet Réglages.",
         ],
 
         // ─────────── CHINESE ───────────
