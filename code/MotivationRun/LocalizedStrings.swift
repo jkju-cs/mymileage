@@ -614,26 +614,29 @@ private enum Strings {
             .widgetGalleryDone:         "Fertig",
             .widgetGalleryMaxReached:   "Bis zu 10 Fotos können gespeichert werden",
             .widgetGalleryEmpty:        "Füge dein erstes Foto hinzu",
-            .helpContent: """
-MyMileage hilft dir, dein monatliches Laufziel zu erreichen.
-
-Erste Schritte
-1. Öffne den Tab „Einstellungen" und tippe auf „Ziel setzen", um Zieltyp (Distanz, Kalorien oder Dauer) und monatlichen Zielwert festzulegen.
-2. Tippe auf „Apple Health synchronisieren", um die Berechtigung zu erteilen und Laufdaten zu importieren.
-3. Das Dashboard zeigt ein tägliches Balkendiagramm und eine Monatszusammenfassung.
-
-Hauptfunktionen
-• Laufziel — Im aktuellen Monat werden dein Ziel und die verbleibenden Tage auf einen Blick angezeigt.
-• Lauffrequenz — Wähle täglich, alle 2 Tage oder alle 3 Tage. Das benötigte Pensum pro Einheit wird automatisch berechnet.
-• Entfernungseinheit — Wechsle zwischen km und Meilen in den Einstellungen. Das Ziel wird automatisch umgerechnet.
-• Widget — Füge das Widget zum Startbildschirm hinzu. Wähle aus 4 Layouts (Minimal, Kompakt, Ausgewogen, Komplett) und lege ein eigenes Hintergrundfoto fest.
-• Benachrichtigungen — Erinnerungen 7, 3 oder 1 Tag vor Monatsende, wenn das Ziel noch nicht erreicht ist.
-
-Tipps
-• Synchronisiere regelmäßig, um deinen Fortschritt aktuell zu halten.
-• Das Widget aktualisiert sich stündlich automatisch.
-• Im Tab „Einstellungen" kannst du Farben, Sprache und mehr ändern.
-""",
+            .helpSectionStart:      "Erste Schritte",
+            .helpSectionFeatures:   "Kernfunktionen",
+            .helpSectionWidget:     "Widget & Benachrichtigungen",
+            .helpSectionTips:       "Tipps",
+            .helpStep1Title:        "Ziel setzen",
+            .helpStep1Desc:         "Wähle im Einstellungen-Tab einen Zieltyp — Distanz, Kalorien oder Dauer — und gib dein Monatsziel ein.",
+            .helpStep2Title:        "Apple Health synchronisieren",
+            .helpStep2Desc:         "Erteile die Berechtigung und deine Laufdaten werden automatisch importiert.",
+            .helpStep3Title:        "Dashboard ansehen",
+            .helpStep3Desc:         "Sieh dir tägliche Balkendiagramme und deine Monatsübersicht an, um den Fortschritt auf einen Blick zu verfolgen.",
+            .helpFeatGoalTitle:     "Laufziel",
+            .helpFeatGoalDesc:      "Dein Monatsziel und die verbleibenden Tage sind auf dem Dashboard sofort sichtbar.",
+            .helpFeatFreqTitle:     "Lauffrequenz",
+            .helpFeatFreqDesc:      "Wähle täglich, alle 2 Tage oder alle 3 Tage — die erforderliche Menge pro Einheit wird automatisch berechnet.",
+            .helpFeatUnitTitle:     "Entfernungseinheit",
+            .helpFeatUnitDesc:      "Wechsle frei zwischen km und Meilen — dein Zielwert wird automatisch umgerechnet.",
+            .helpWidgetTitle:       "Startbildschirm-Widget",
+            .helpWidgetDesc:        "Wähle aus 4 Layouts — Minimal, Kompakt, Ausgewogen oder Komplett. Mit Pro kannst du ein benutzerdefiniertes Hintergrundbild festlegen.",
+            .helpNotifTitle:        "Ziel-Erinnerungen",
+            .helpNotifDesc:         "Erhalte Benachrichtigungen 7, 3 und 1 Tag vor Monatsende, wenn das Ziel noch nicht erreicht wurde.",
+            .helpTip1:              "Synchronisiere regelmäßig, um deine Daten aktuell zu halten.",
+            .helpTip2:              "Das Widget wird stündlich automatisch aktualisiert.",
+            .helpTip3:              "Passe Themenfarben und Sprache im Einstellungen-Tab an.",
         ],
 
         // ─────────── FRENCH ───────────
