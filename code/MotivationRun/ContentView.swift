@@ -58,6 +58,7 @@ struct ContentView: View {
     @State private var selectedMonth: Int = Calendar.current.component(.month, from: Date())
     @State private var isLoadingSessions: Bool = false
     @State private var chartMetric: ChartMetric = .distance
+    @State private var monthlyStats: MonthlyStats?
 
     // MARK: - 테마 색상 (동적)
     private var cAccent:   Color { themeAccent.color }
@@ -123,6 +124,17 @@ struct ContentView: View {
         let h = total / 60
         let m = total % 60
         return h > 0 ? "\(h)h \(m)m" : "\(m)m"
+    }
+
+    private var monthTotalStepsStr: String {
+        guard let steps = monthlyStats?.totalSteps, steps > 0 else { return "-" }
+        if steps >= 10_000 { return String(format: "%.1fk", Double(steps) / 1_000) }
+        return "\(steps)"
+    }
+
+    private var monthAvgHeartRateStr: String {
+        guard let hr = monthlyStats?.avgHeartRateBpm, hr > 0 else { return "-" }
+        return "\(Int(hr.rounded()))"
     }
 
     private var remainingDays: Int {
@@ -477,10 +489,6 @@ struct ContentView: View {
                         endPoint: .bottomTrailing
                     )
                 )
-                .shadow(
-                    color: themeAccent.color.opacity(0.30),
-                    radius: 7, x: 0, y: 2
-                )
         )
     }
 
@@ -690,6 +698,8 @@ struct ContentView: View {
             ("number",           "\(monthSessionCount)",                            "",                        t(.thisMonthActivities)),
             ("speedometer",      monthAvgPaceStr,                                   "/\(distanceUnit.symbol)", t(.dashboardAvgPace)),
             ("arrow.left.arrow.right", String(format: "%.1f", monthAvgDistancePerRun), distanceUnit.symbol,   t(.dashboardAvgDistance)),
+            ("figure.walk",      monthTotalStepsStr,                                "",                        t(.dashboardTotalSteps)),
+            ("heart.fill",       monthAvgHeartRateStr,                              "bpm",                     t(.dashboardAvgHeartRate)),
         ]
 
         return LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
@@ -789,6 +799,7 @@ struct ContentView: View {
 
     private func loadData() {
         let stats        = SharedDataManager.shared.getMonthlyStats()
+        monthlyStats     = stats
         goalType         = SharedDataManager.shared.getGoalType()
         goalTarget       = SharedDataManager.shared.getGoalTarget()
         runFrequency     = SharedDataManager.shared.getRunFrequency()
@@ -865,6 +876,61 @@ struct HelpView: View {
             }
         }
         .preferredColorScheme(nil)
+    }
+}
+
+// MARK: - Help Accordion Section
+
+private struct AccordionSection<Content: View>: View {
+    let icon: String
+    let iconColor: Color
+    let iconBgColor: Color
+    let title: String
+    @Binding var isExpanded: Bool
+    let cCard: Color
+    let cText: Color
+    @ViewBuilder var content: () -> Content
+
+    var body: some View {
+        VStack(spacing: 0) {
+            Button {
+                withAnimation(.easeInOut(duration: 0.22)) {
+                    isExpanded.toggle()
+                }
+            } label: {
+                HStack(spacing: 10) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 7)
+                            .fill(iconBgColor)
+                            .frame(width: 28, height: 28)
+                        Image(systemName: icon)
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(iconColor)
+                    }
+                    Text(title)
+                        .font(.pretendard(.semibold, size: 15))
+                        .foregroundColor(cText)
+                    Spacer()
+                    Image(systemName: "chevron.down")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.gray.opacity(0.6))
+                        .rotationEffect(.degrees(isExpanded ? 180 : 0))
+                }
+                .padding(12)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+
+            if isExpanded {
+                Rectangle()
+                    .fill(Color.white.opacity(0.06))
+                    .frame(height: 1)
+                    .padding(.horizontal, 14)
+                content()
+            }
+        }
+        .background(cCard)
+        .cornerRadius(12)
     }
 }
 
