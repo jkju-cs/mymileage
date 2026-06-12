@@ -432,16 +432,16 @@ struct ContentView: View {
         }
     }
 
-    // Accent-linked dark gradient for the hero banner
+    // Accent-linked vivid gradient for the hero banner
     private var heroBannerColors: [Color] {
         switch themeAccent {
-        case .navy:   return [Color(hex: "#1A2E5E"), Color(hex: "#0A1F4A")]
-        case .blue:   return [Color(hex: "#0D3A96"), Color(hex: "#071E6E")]
-        case .green:  return [Color(hex: "#00ab45"), Color(hex: "#006c28")]
-        case .orange: return [Color(hex: "#da5b00"), Color(hex: "#c04d00")]  // midpoint: dark ↔ #FD6A00
-        case .red:    return [Color(hex: "#cb1414"), Color(hex: "#a91b1b")]  // midpoint: dark ↔ #F13E3E
-        case .purple: return [Color(hex: "#4A1580"), Color(hex: "#30095A")]
-        case .yellow: return [Color(hex: "#fad501"), Color(hex: "#ce9403")]  // midpoint: dark ↔ #FFB902
+        case .navy:   return [Color(hex: "#6AA0FF"), Color(hex: "#3065D4")]
+        case .blue:   return [Color(hex: "#2563EB"), Color(hex: "#1746B0")]
+        case .green:  return [Color(hex: "#0DC450"), Color(hex: "#04B249")]
+        case .orange: return [Color(hex: "#FF8A30"), Color(hex: "#FD6A00")]
+        case .red:    return [Color(hex: "#F75050"), Color(hex: "#D42020")]
+        case .purple: return [Color(hex: "#B266EE"), Color(hex: "#7C22C8")]
+        case .yellow: return [Color(hex: "#FFD145"), Color(hex: "#FFB902")]
         }
     }
 
@@ -957,7 +957,7 @@ struct HelpView: View {
             badge().padding(.top, 1)
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.pretendard(.semibold, size: 13))
+                    .font(.pretendard(.bold, size: 13))
                     .foregroundColor(cText)
                 Text(desc)
                     .font(.pretendard(.regular, size: 12))
@@ -1042,7 +1042,7 @@ private struct AccordionSection<Content: View>: View {
                             .foregroundColor(iconColor)
                     }
                     Text(title)
-                        .font(.pretendard(.semibold, size: 15))
+                        .font(.pretendard(.bold, size: 15))
                         .foregroundColor(cText)
                     Spacer()
                     Image(systemName: "chevron.down")
