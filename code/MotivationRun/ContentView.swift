@@ -489,6 +489,10 @@ struct ContentView: View {
                         endPoint: .bottomTrailing
                     )
                 )
+                .shadow(
+                    color: themeAccent.color.opacity(0.30),
+                    radius: 7, x: 0, y: 2
+                )
         )
     }
 
@@ -922,15 +926,18 @@ private struct AccordionSection<Content: View>: View {
             .buttonStyle(.plain)
 
             if isExpanded {
-                Rectangle()
-                    .fill(Color.white.opacity(0.06))
-                    .frame(height: 1)
-                    .padding(.horizontal, 14)
-                content()
+                VStack(spacing: 0) {
+                    Rectangle()
+                        .fill(Color.white.opacity(0.06))
+                        .frame(height: 1)
+                        .padding(.horizontal, 14)
+                    content()
+                }
+                .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
         .background(cCard)
-        .cornerRadius(12)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }
 
