@@ -1052,26 +1052,29 @@ private enum Strings {
             .widgetGalleryDone:         "Listo",
             .widgetGalleryMaxReached:   "Se pueden guardar hasta 10 fotos",
             .widgetGalleryEmpty:        "Agrega tu primera foto",
-            .helpContent: """
-MyMileage te ayuda a alcanzar tu meta mensual de carrera.
-
-Cómo empezar
-1. Abre la pestaña Ajustes y toca «Establecer meta» para elegir el tipo (distancia, calorías o duración) y fijar la meta mensual.
-2. Toca «Sincronizar Apple Health» para conceder permiso e importar tus datos de carrera.
-3. El panel muestra un gráfico de barras diario y un resumen mensual de tu progreso.
-
-Funciones principales
-• Meta de kilometraje — El mes actual muestra tu meta y los días restantes de un vistazo.
-• Frecuencia de carrera — Elige diario, cada 2 días o cada 3 días. La app calcula automáticamente la cantidad necesaria por sesión.
-• Unidad de distancia — Cambia entre km y millas en los ajustes. La meta se convierte automáticamente.
-• Widget — Añade el widget a la pantalla de inicio. Elige entre 4 diseños (Mínimo, Compacto, Equilibrado, Completo) y establece una foto de fondo personalizada.
-• Notificaciones — Recordatorios 7, 3 o 1 día antes del fin de mes si no has alcanzado la meta.
-
-Consejos
-• Sincroniza regularmente para mantener tu progreso actualizado.
-• El widget se actualiza automáticamente cada hora.
-• Usa la pestaña Ajustes para cambiar colores, idioma y más.
-""",
+            .helpSectionStart:      "Primeros pasos",
+            .helpSectionFeatures:   "Funciones principales",
+            .helpSectionWidget:     "Widget & Notificaciones",
+            .helpSectionTips:       "Consejos",
+            .helpStep1Title:        "Establecer objetivo",
+            .helpStep1Desc:         "En la pestaña Ajustes, elige el tipo de objetivo — distancia, calorías o duración — e introduce tu meta mensual.",
+            .helpStep2Title:        "Sincronizar Apple Health",
+            .helpStep2Desc:         "Concede el permiso y tus datos de carrera se importarán automáticamente.",
+            .helpStep3Title:        "Ver el panel",
+            .helpStep3Desc:         "Consulta los gráficos de barras diarios y el resumen mensual para ver tu progreso de un vistazo.",
+            .helpFeatGoalTitle:     "Objetivo de kilometraje",
+            .helpFeatGoalDesc:      "Tu meta mensual y los días restantes se muestran de un vistazo en el panel.",
+            .helpFeatFreqTitle:     "Frecuencia de carrera",
+            .helpFeatFreqDesc:      "Elige cada día, cada 2 días o cada 3 días — la cantidad necesaria por sesión se calcula automáticamente.",
+            .helpFeatUnitTitle:     "Unidad de distancia",
+            .helpFeatUnitDesc:      "Cambia libremente entre km y millas — el valor de tu objetivo se convierte automáticamente.",
+            .helpWidgetTitle:       "Widget de pantalla de inicio",
+            .helpWidgetDesc:        "Elige entre 4 diseños — Mínimo, Compacto, Equilibrado o Completo. Con Pro puedes establecer una foto de fondo personalizada.",
+            .helpNotifTitle:        "Recordatorios de objetivo",
+            .helpNotifDesc:         "Recibe notificaciones 7, 3 y 1 día antes del fin de mes si tu objetivo aún no se ha alcanzado.",
+            .helpTip1:              "Sincroniza regularmente para mantener tus datos actualizados.",
+            .helpTip2:              "El widget se actualiza automáticamente cada hora.",
+            .helpTip3:              "Personaliza los colores del tema y el idioma en la pestaña de Ajustes.",
         ],
     ]
 }
