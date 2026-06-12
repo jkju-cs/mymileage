@@ -7,6 +7,22 @@
 import Foundation
 import SwiftUI
 
+// MARK: - Color Hex Extension (shared: main app + widget targets)
+
+extension Color {
+    init(hex: String) {
+        let h = hex.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
+        guard h.count == 6 else { self.init(.clear); return }
+        var rgb: UInt64 = 0
+        guard Scanner(string: h).scanHexInt64(&rgb) else { self.init(.clear); return }
+        self.init(
+            red:   Double((rgb >> 16) & 0xFF) / 255,
+            green: Double((rgb >> 8)  & 0xFF) / 255,
+            blue:  Double( rgb        & 0xFF) / 255
+        )
+    }
+}
+
 // MARK: - AppLanguage
 
 enum AppLanguage: String, Codable, CaseIterable {
@@ -129,41 +145,60 @@ enum DistanceUnit: String, Codable, CaseIterable {
 // MARK: - ThemeAccent
 
 enum ThemeAccent: String, Codable, CaseIterable {
-    case red, orange, yellow, green, blue, navy, purple, white, black
+    case blue, green, orange, red, purple, yellow
 
     var label: String {
         switch self {
-        case .red:    return "빨강"
-        case .orange: return "주황"
-        case .yellow: return "노랑"
-        case .green:  return "초록"
-        case .blue:   return "파랑"
-        case .navy:   return "남색"
-        case .purple: return "보라"
-        case .white:  return "하양"
-        case .black:  return "검정"
+        case .blue:   return "Blue"
+        case .green:  return "Green"
+        case .orange: return "Orange"
+        case .red:    return "Red"
+        case .purple: return "Purple"
+        case .yellow: return "Yellow"
         }
     }
 
+    // HMG Point Color System — base color for light theme
     var color: Color {
         switch self {
-        case .red:    return Color(red: 1.0,   green: 0.231, blue: 0.188)
-        case .orange: return Color(red: 1.0,   green: 0.584, blue: 0.0)
-        case .yellow: return Color(red: 0.961, green: 0.784, blue: 0.0)
-        case .green:  return Color(red: 0.204, green: 0.780, blue: 0.349)
-        case .blue:   return Color(red: 0.0,   green: 0.478, blue: 1.0)
-        case .navy:   return Color(red: 0.0,   green: 0.188, blue: 0.529)
-        case .purple: return Color(red: 0.686, green: 0.322, blue: 0.871)
-        case .white:  return Color.white
-        case .black:  return Color(red: 0.067, green: 0.067, blue: 0.067)
+        case .blue:   return Color(hex: "#3478FE")
+        case .green:  return Color(hex: "#04B249")
+        case .orange: return Color(hex: "#FD6A00")
+        case .red:    return Color(hex: "#F13E3E")
+        case .purple: return Color(hex: "#913DE5")
+        case .yellow: return Color(hex: "#FFB902")
+        }
+    }
+
+    // Dark theme variant (brighter for contrast on dark bg)
+    var colorDark: Color {
+        switch self {
+        case .blue:   return Color(hex: "#94BBFF")
+        case .green:  return Color(hex: "#38B249")
+        case .orange: return Color(hex: "#FD8C2F")
+        case .red:    return Color(hex: "#F75050")
+        case .purple: return Color(hex: "#B266EE")
+        case .yellow: return Color(hex: "#F9BA21")
+        }
+    }
+
+    // Soft container background
+    var containerColor: Color {
+        switch self {
+        case .blue:   return Color(hex: "#ECF6FF")
+        case .green:  return Color(hex: "#EBF4EE")
+        case .orange: return Color(hex: "#FFEBDD")
+        case .red:    return Color(hex: "#FEECEC")
+        case .purple: return Color(hex: "#F5EBFE")
+        case .yellow: return Color(hex: "#FCF2D8")
         }
     }
 
     /// 포인트 색상 위에 올라가는 텍스트/아이콘 색상
     var foregroundColor: Color {
         switch self {
-        case .yellow, .orange, .green, .white: return Color(red: 0.067, green: 0.067, blue: 0.067)
-        case .red, .blue, .navy, .purple, .black: return .white
+        case .yellow, .orange: return Color(hex: "#0E1116")
+        case .blue, .green, .red, .purple: return .white
         }
     }
 }
@@ -180,11 +215,42 @@ enum ThemeBackground: String, Codable, CaseIterable {
     var isDark: Bool  { self == .black }
     var colorScheme: ColorScheme { isDark ? .dark : .light }
 
-    var appBg:    Color { isDark ? Color(red: 0.067, green: 0.067, blue: 0.067) : Color(red: 0.949, green: 0.949, blue: 0.957) }
-    var cardBg:   Color { isDark ? Color(red: 0.110, green: 0.110, blue: 0.118) : Color.white }
-    var grayBg:   Color { isDark ? Color(red: 0.227, green: 0.227, blue: 0.235) : Color(red: 0.820, green: 0.820, blue: 0.839) }
-    var subText:  Color { isDark ? Color(red: 0.557, green: 0.557, blue: 0.576) : Color(red: 0.427, green: 0.427, blue: 0.447) }
-    var mainText: Color { isDark ? Color.white : Color(red: 0.067, green: 0.067, blue: 0.067) }
+    // HMG Design System Tokens
+    // Light: #F4F5F7 bg, #FFFFFF card, Hyundai Navy #0A1F4A primary
+    // Dark: #0B0D12 bg, #161A22 card, Blue #5790FE primary
+
+    var appBg:    Color {
+        isDark ? Color(hex: "#0B0D12") : Color(hex: "#E8EAED")
+    }
+    var cardBg:   Color {
+        isDark ? Color(hex: "#161A22") : Color(hex: "#F5F6F8")
+    }
+    var cardSoft: Color {
+        isDark ? Color(hex: "#1B2029") : Color(hex: "#F0F1F4")
+    }
+    var grayBg:   Color {
+        isDark ? Color(hex: "#262B36") : Color(hex: "#DFE1E5")
+    }
+    var graySoft: Color {
+        isDark ? Color(hex: "#1E2330") : Color(hex: "#E6E8EB")
+    }
+    var subText:  Color {
+        isDark ? Color(hex: "#6B768C") : Color(hex: "#8E949F")
+    }
+    var mainText: Color {
+        isDark ? Color(hex: "#F2F3F5") : Color(hex: "#0E1116")
+    }
+    var lineColor: Color {
+        isDark ? Color(hex: "#262B36") : Color(hex: "#ECEEF1")
+    }
+    // Medium-grey text (between mainText and subText)
+    var inkMid: Color {
+        isDark ? Color(hex: "#9FA6B2") : Color(hex: "#5C6779")
+    }
+    // Lightest grey text / disabled / placeholder
+    var inkOff: Color {
+        isDark ? Color(hex: "#4A5366") : Color(hex: "#B2B6BD")
+    }
 }
 
 // MARK: - WidgetDesign
@@ -246,6 +312,8 @@ struct MonthlyStats: Codable {
     var lastSyncTime: Date
     var activitiesCount: Int
     var sessions: [RunSession]
+    var totalSteps: Int?
+    var avgHeartRateBpm: Double?
 
     /// goalType에 따른 현재 달성값 (거리는 km 기준 — 표시 레이어에서 단위 변환)
     var currentValue: Double {
@@ -263,5 +331,17 @@ struct MonthlyStats: Codable {
         case .calories: return totalCalories
         case .duration: return totalDurationMinutes / 60
         }
+    }
+}
+
+// MARK: - WorkoutSourcePreference
+
+struct WorkoutSourcePreference: Codable {
+    var allowedBundleIDs: [String] = []
+    var isConfigured: Bool = false
+
+    func allows(bundleID: String) -> Bool {
+        guard isConfigured && !allowedBundleIDs.isEmpty else { return true }
+        return allowedBundleIDs.contains(bundleID)
     }
 }

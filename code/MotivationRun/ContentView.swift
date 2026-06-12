@@ -435,7 +435,6 @@ struct ContentView: View {
     // Accent-linked vivid gradient for the hero banner
     private var heroBannerColors: [Color] {
         switch themeAccent {
-        case .navy:   return [Color(hex: "#6AA0FF"), Color(hex: "#3065D4")]
         case .blue:   return [Color(hex: "#2563EB"), Color(hex: "#1746B0")]
         case .green:  return [Color(hex: "#0DC450"), Color(hex: "#04B249")]
         case .orange: return [Color(hex: "#FF8A30"), Color(hex: "#FD6A00")]
@@ -957,7 +956,7 @@ struct HelpView: View {
             badge().padding(.top, 1)
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.pretendard(.semibold, size: 13))
+                    .font(.pretendard(.bold, size: 13))
                     .foregroundColor(cText)
                 Text(desc)
                     .font(.pretendard(.regular, size: 12))
@@ -1042,7 +1041,7 @@ private struct AccordionSection<Content: View>: View {
                             .foregroundColor(iconColor)
                     }
                     Text(title)
-                        .font(.pretendard(.semibold, size: 15))
+                        .font(.pretendard(.bold, size: 15))
                         .foregroundColor(cText)
                     Spacer()
                     Image(systemName: "chevron.down")
