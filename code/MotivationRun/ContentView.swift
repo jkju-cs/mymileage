@@ -957,7 +957,7 @@ struct HelpView: View {
             badge().padding(.top, 1)
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.pretendard(.bold, size: 13))
+                    .font(.pretendard(.semibold, size: 13))
                     .foregroundColor(cText)
                 Text(desc)
                     .font(.pretendard(.regular, size: 12))
@@ -1042,7 +1042,7 @@ private struct AccordionSection<Content: View>: View {
                             .foregroundColor(iconColor)
                     }
                     Text(title)
-                        .font(.pretendard(.bold, size: 15))
+                        .font(.pretendard(.semibold, size: 15))
                         .foregroundColor(cText)
                     Spacer()
                     Image(systemName: "chevron.down")
