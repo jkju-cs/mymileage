@@ -20,6 +20,7 @@ struct RunSessionDetailView: View {
 
     @State private var difficulty: Double = 0.5
     @State private var diary: String = ""
+    @FocusState private var isDiaryFocused: Bool
 
     private func t(_ key: LK) -> String { L(key, appLanguage) }
     private var cAccent: Color { themeAccent.color }
@@ -88,6 +89,16 @@ struct RunSessionDetailView: View {
         .preferredColorScheme(themeBackground.colorScheme)
         .onAppear { loadJournal() }
         .onDisappear { saveJournal() }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button(t(.doneButton)) {
+                    isDiaryFocused = false
+                }
+                .font(.pretendard(.semiBold, size: 15))
+                .foregroundColor(cAccent)
+            }
+        }
     }
 
     // MARK: - Date Header
@@ -239,6 +250,7 @@ struct RunSessionDetailView: View {
                         .frame(minHeight: 80)
                         .scrollContentBackground(.hidden)
                         .background(Color.clear)
+                        .focused($isDiaryFocused)
                 }
                 .padding(12)
                 .background(

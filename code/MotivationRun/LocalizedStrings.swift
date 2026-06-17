@@ -205,6 +205,7 @@ enum LK: String {
     case difficultyHard
     case difficultyVeryHard
     case journalUnavailable
+    case doneButton
 }
 
 // MARK: - Global Localization Function
@@ -369,7 +370,8 @@ private enum Strings {
             .detailNavTitle:            "Run Detail",
             .journalSectionTitle:       "Journal & 3-Line Diary",
             .journalDifficultyLabel:    "Effort Level",
-            .journalDiaryLabel:         "Exercise Notes",
+            .journalDiaryLabel:         "Notes",
+            .doneButton:                "Done",
             .journalDiaryPlaceholder:   "How was your run today?",
             .difficultyVeryEasy:        "Very Easy",
             .difficultyEasy:            "Easy",
@@ -530,7 +532,8 @@ private enum Strings {
             .detailNavTitle:            "기록 상세",
             .journalSectionTitle:       "운동일지 & 3줄 마음일기",
             .journalDifficultyLabel:    "운동 난이도",
-            .journalDiaryLabel:         "운동 노트",
+            .journalDiaryLabel:         "운동 일지",
+            .doneButton:                "완료",
             .journalDiaryPlaceholder:   "오늘의 러닝은 어땠나요?",
             .difficultyVeryEasy:        "매우 쉬움",
             .difficultyEasy:            "쉬움",
@@ -691,7 +694,8 @@ private enum Strings {
             .detailNavTitle:            "Lauf-Details",
             .journalSectionTitle:       "Tagebuch & Notiz",
             .journalDifficultyLabel:    "Intensität",
-            .journalDiaryLabel:         "Trainingsnotiz",
+            .journalDiaryLabel:         "Notizen",
+            .doneButton:                "Fertig",
             .journalDiaryPlaceholder:   "Wie war dein Lauf heute?",
             .difficultyVeryEasy:        "Sehr leicht",
             .difficultyEasy:            "Leicht",
@@ -852,7 +856,8 @@ private enum Strings {
             .detailNavTitle:            "Détails du run",
             .journalSectionTitle:       "Journal & note",
             .journalDifficultyLabel:    "Intensité",
-            .journalDiaryLabel:         "Notes d'entraînement",
+            .journalDiaryLabel:         "Notes",
+            .doneButton:                "Terminé",
             .journalDiaryPlaceholder:   "Comment était ton run aujourd'hui ?",
             .difficultyVeryEasy:        "Très facile",
             .difficultyEasy:            "Facile",
@@ -1014,6 +1019,7 @@ private enum Strings {
             .journalSectionTitle:       "运动日志 & 心情日记",
             .journalDifficultyLabel:    "运动强度",
             .journalDiaryLabel:         "运动笔记",
+            .doneButton:                "完成",
             .journalDiaryPlaceholder:   "今天的跑步感觉怎么样？",
             .difficultyVeryEasy:        "非常轻松",
             .difficultyEasy:            "轻松",
@@ -1174,7 +1180,8 @@ private enum Strings {
             .detailNavTitle:            "Detalles de carrera",
             .journalSectionTitle:       "Diario & nota",
             .journalDifficultyLabel:    "Esfuerzo",
-            .journalDiaryLabel:         "Notas de entrenamiento",
+            .journalDiaryLabel:         "Notas",
+            .doneButton:                "Listo",
             .journalDiaryPlaceholder:   "¿Cómo fue tu carrera hoy?",
             .difficultyVeryEasy:        "Muy fácil",
             .difficultyEasy:            "Fácil",
