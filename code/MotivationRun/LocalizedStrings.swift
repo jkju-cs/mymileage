@@ -188,6 +188,23 @@ enum LK: String {
     case widgetGalleryDone
     case widgetGalleryMaxReached
     case widgetGalleryEmpty
+    // Settings section headers
+    case settingSectionData
+    case settingSectionGeneral
+    case settingSectionWidget
+    case settingSectionAbout
+    // Run detail & journal
+    case detailNavTitle
+    case journalSectionTitle
+    case journalDifficultyLabel
+    case journalDiaryLabel
+    case journalDiaryPlaceholder
+    case difficultyVeryEasy
+    case difficultyEasy
+    case difficultyModerate
+    case difficultyHard
+    case difficultyVeryHard
+    case journalUnavailable
 }
 
 // MARK: - Global Localization Function
@@ -345,6 +362,21 @@ private enum Strings {
             .helpTip1:              "Sync regularly to keep your data up to date.",
             .helpTip2:              "The widget refreshes automatically every hour.",
             .helpTip3:              "Customize your theme colors and language in the Settings tab.",
+            .settingSectionData:    "Data",
+            .settingSectionGeneral: "General",
+            .settingSectionWidget:  "Widget",
+            .settingSectionAbout:   "About",
+            .detailNavTitle:            "Run Detail",
+            .journalSectionTitle:       "Journal & 3-Line Diary",
+            .journalDifficultyLabel:    "Effort Level",
+            .journalDiaryLabel:         "3-Line Diary",
+            .journalDiaryPlaceholder:   "How was your run today?",
+            .difficultyVeryEasy:        "Very Easy",
+            .difficultyEasy:            "Easy",
+            .difficultyModerate:        "Moderate",
+            .difficultyHard:            "Hard",
+            .difficultyVeryHard:        "Very Hard",
+            .journalUnavailable:        "Sync with HealthKit to enable journaling",
         ],
 
         // ─────────── KOREAN ───────────
@@ -491,6 +523,21 @@ private enum Strings {
             .helpTip1:              "정기적으로 동기화해 최신 데이터를 유지하세요.",
             .helpTip2:              "위젯은 1시간마다 자동으로 갱신됩니다.",
             .helpTip3:              "설정 탭에서 테마 색상과 언어를 변경할 수 있습니다.",
+            .settingSectionData:    "데이터",
+            .settingSectionGeneral: "일반",
+            .settingSectionWidget:  "위젯",
+            .settingSectionAbout:   "정보",
+            .detailNavTitle:            "기록 상세",
+            .journalSectionTitle:       "운동일지 & 3줄 마음일기",
+            .journalDifficultyLabel:    "운동 난이도",
+            .journalDiaryLabel:         "3줄 마음일기",
+            .journalDiaryPlaceholder:   "오늘의 러닝은 어땠나요?",
+            .difficultyVeryEasy:        "매우 쉬움",
+            .difficultyEasy:            "쉬움",
+            .difficultyModerate:        "보통",
+            .difficultyHard:            "약간 어려움",
+            .difficultyVeryHard:        "매우 어려움",
+            .journalUnavailable:        "HealthKit 재동기화 후 사용 가능",
         ],
 
         // ─────────── GERMAN ───────────
@@ -637,6 +684,21 @@ private enum Strings {
             .helpTip1:              "Synchronisiere regelmäßig, um deine Daten aktuell zu halten.",
             .helpTip2:              "Das Widget wird stündlich automatisch aktualisiert.",
             .helpTip3:              "Passe Themenfarben und Sprache im Einstellungen-Tab an.",
+            .settingSectionData:    "Daten",
+            .settingSectionGeneral: "Allgemein",
+            .settingSectionWidget:  "Widget",
+            .settingSectionAbout:   "Info",
+            .detailNavTitle:            "Lauf-Details",
+            .journalSectionTitle:       "Tagebuch & Notiz",
+            .journalDifficultyLabel:    "Intensität",
+            .journalDiaryLabel:         "3-Zeilen-Notiz",
+            .journalDiaryPlaceholder:   "Wie war dein Lauf heute?",
+            .difficultyVeryEasy:        "Sehr leicht",
+            .difficultyEasy:            "Leicht",
+            .difficultyModerate:        "Mittel",
+            .difficultyHard:            "Schwer",
+            .difficultyVeryHard:        "Sehr schwer",
+            .journalUnavailable:        "Nach HealthKit-Sync verfügbar",
         ],
 
         // ─────────── FRENCH ───────────
@@ -783,6 +845,21 @@ private enum Strings {
             .helpTip1:              "Synchronisez régulièrement pour maintenir vos données à jour.",
             .helpTip2:              "Le widget se rafraîchit automatiquement toutes les heures.",
             .helpTip3:              "Personnalisez les couleurs du thème et la langue dans l'onglet Réglages.",
+            .settingSectionData:    "Données",
+            .settingSectionGeneral: "Général",
+            .settingSectionWidget:  "Widget",
+            .settingSectionAbout:   "À propos",
+            .detailNavTitle:            "Détails du run",
+            .journalSectionTitle:       "Journal & note",
+            .journalDifficultyLabel:    "Intensité",
+            .journalDiaryLabel:         "Journal 3 lignes",
+            .journalDiaryPlaceholder:   "Comment était ton run aujourd'hui ?",
+            .difficultyVeryEasy:        "Très facile",
+            .difficultyEasy:            "Facile",
+            .difficultyModerate:        "Modéré",
+            .difficultyHard:            "Difficile",
+            .difficultyVeryHard:        "Très difficile",
+            .journalUnavailable:        "Disponible après sync HealthKit",
         ],
 
         // ─────────── CHINESE ───────────
@@ -929,6 +1006,21 @@ private enum Strings {
             .helpTip1:              "定期同步以保持数据最新。",
             .helpTip2:              "小组件每小时自动刷新一次。",
             .helpTip3:              "可在设置标签页中自定义主题颜色和语言。",
+            .settingSectionData:    "数据",
+            .settingSectionGeneral: "通用",
+            .settingSectionWidget:  "小组件",
+            .settingSectionAbout:   "关于",
+            .detailNavTitle:            "跑步详情",
+            .journalSectionTitle:       "运动日志 & 心情日记",
+            .journalDifficultyLabel:    "运动强度",
+            .journalDiaryLabel:         "3行心情",
+            .journalDiaryPlaceholder:   "今天的跑步感觉怎么样？",
+            .difficultyVeryEasy:        "非常轻松",
+            .difficultyEasy:            "轻松",
+            .difficultyModerate:        "适中",
+            .difficultyHard:            "有些困难",
+            .difficultyVeryHard:        "非常困难",
+            .journalUnavailable:        "同步 HealthKit 后可用",
         ],
 
         // ─────────── SPANISH ───────────
@@ -1075,6 +1167,21 @@ private enum Strings {
             .helpTip1:              "Sincroniza regularmente para mantener tus datos actualizados.",
             .helpTip2:              "El widget se actualiza automáticamente cada hora.",
             .helpTip3:              "Personaliza los colores del tema y el idioma en la pestaña de Ajustes.",
+            .settingSectionData:    "Datos",
+            .settingSectionGeneral: "General",
+            .settingSectionWidget:  "Widget",
+            .settingSectionAbout:   "Acerca de",
+            .detailNavTitle:            "Detalles de carrera",
+            .journalSectionTitle:       "Diario & nota",
+            .journalDifficultyLabel:    "Esfuerzo",
+            .journalDiaryLabel:         "Diario 3 líneas",
+            .journalDiaryPlaceholder:   "¿Cómo fue tu carrera hoy?",
+            .difficultyVeryEasy:        "Muy fácil",
+            .difficultyEasy:            "Fácil",
+            .difficultyModerate:        "Moderado",
+            .difficultyHard:            "Difícil",
+            .difficultyVeryHard:        "Muy difícil",
+            .journalUnavailable:        "Disponible tras sincronizar HealthKit",
         ],
     ]
 }
