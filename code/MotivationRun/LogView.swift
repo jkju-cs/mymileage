@@ -20,6 +20,7 @@ struct LogView: View {
     let themeBackground: ThemeBackground
     let distanceUnit: DistanceUnit
     let appLanguage: AppLanguage
+    var tabBarHeight: CGFloat = 88
 
     @State private var monthGroups: [MonthGroup] = []
     @State private var isLoading = false
@@ -33,58 +34,73 @@ struct LogView: View {
     private var cSub:    Color  { themeBackground.subText }
 
     var body: some View {
-        ZStack {
-            cBg.ignoresSafeArea()
+        NavigationView {
+            ZStack {
+                cBg.ignoresSafeArea()
 
-            if isLoading {
-                ProgressView()
-                    .tint(cAccent)
-            } else if monthGroups.isEmpty {
-                Text(t(.noRunsMsg))
-                    .font(.system(size: 15))
-                    .foregroundColor(cSub)
-            } else {
-                ScrollView(showsIndicators: false) {
-                    LazyVStack(alignment: .leading, spacing: 0, pinnedViews: [.sectionHeaders]) {
-                        ForEach(monthGroups) { group in
-                            Section {
+                if isLoading {
+                    ProgressView()
+                        .tint(cAccent)
+                } else if monthGroups.isEmpty {
+                    Text(t(.noRunsMsg))
+                        .font(.system(size: 15))
+                        .foregroundColor(cSub)
+                } else {
+                    ScrollView(showsIndicators: false) {
+                        VStack(alignment: .leading, spacing: 0) {
+                            ForEach(monthGroups) { group in
+                                Text(group.yearMonth)
+                                    .font(.pretendard(.semiBold, size: 12))
+                                    .foregroundColor(cSub)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(.horizontal, 16)
+                                    .padding(.top, 20)
+                                    .padding(.bottom, 8)
+
                                 ForEach(Array(group.sessions.enumerated()), id: \.element.id) { index, session in
-                                    HStack {
-                                        Spacer(minLength: 0)
+                                    NavigationLink {
+                                        RunSessionDetailView(
+                                            session: session,
+                                            runNumber: group.sessions.count - index,
+                                            distanceUnit: distanceUnit,
+                                            appLanguage: appLanguage,
+                                            themeAccent: themeAccent,
+                                            themeBackground: themeBackground
+                                        )
+                                    } label: {
                                         RunSessionCard(
                                             session: session,
                                             runNumber: group.sessions.count - index,
                                             distanceUnit: distanceUnit,
                                             language: appLanguage,
+                                            themeBackground: themeBackground,
                                             cAccent: cAccent,
                                             cCard: cCard,
                                             cText: cText,
                                             cSub: cSub
                                         )
-                                        .frame(maxWidth: UIScreen.main.bounds.width * 0.80)
-                                        Spacer(minLength: 0)
                                     }
-                                    .padding(.bottom, 10)
+                                    .buttonStyle(.plain)
+                                    .padding(.horizontal, 16)
+                                    .padding(.bottom, 8)
                                 }
-                            } header: {
-                                Text(group.yearMonth)
-                                    .font(.system(size: 13, weight: .bold))
-                                    .foregroundColor(cSub)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .padding(.horizontal, 20)
-                                    .padding(.vertical, 10)
-                                    .background(cBg)
                             }
+
+                            Color.clear.frame(height: tabBarHeight + 8)
                         }
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 4)
                     }
-                    .padding(.top, 4)
-                    .padding(.bottom, 20)
+                    .frame(maxWidth: .infinity)
+                    .background(cBg)
                 }
-                .clipped()
             }
+            .navigationTitle("Log")
+            .navigationBarTitleDisplayMode(.large)
+            .preferredColorScheme(themeBackground.colorScheme)
+            .onAppear { fetchSessions() }
         }
-        .preferredColorScheme(themeBackground.colorScheme)
-        .onAppear { fetchSessions() }
+        .navigationViewStyle(.stack)
     }
 
     private func fetchSessions() {
@@ -124,13 +140,14 @@ struct LogView: View {
     }
 }
 
-// MARK: - 러닝 세션 카드
+// MARK: - 러닝 세션 카드 (2행 레이아웃)
 
 struct RunSessionCard: View {
     let session: RunSession
     let runNumber: Int
     let distanceUnit: DistanceUnit
     let language: AppLanguage
+    let themeBackground: ThemeBackground
     let cAccent: Color
     let cCard: Color
     let cText: Color
@@ -138,7 +155,7 @@ struct RunSessionCard: View {
 
     private var distance: Double { session.distanceKm * distanceUnit.conversionFromKm }
 
-    private var distanceStr: String { String(format: "%.1f", distance) }
+    private var distanceStr: String { String(format: "%.2f", distance) }
 
     private var durationStr: String {
         let total = Int(session.durationMinutes)
@@ -160,83 +177,119 @@ struct RunSessionCard: View {
         return "\(m)'\(String(format: "%02d", s))\""
     }
 
-    private var dateStr: String {
+    private var dayStr: String {
         let f = DateFormatter()
         f.locale = language.locale
-        f.dateFormat = L(.shortDateFormat, language)
+        f.dateFormat = "d"
+        return f.string(from: session.date)
+    }
+
+    private var weekdayMonthStr: String {
+        let f = DateFormatter()
+        f.locale = language.locale
+        f.dateFormat = "EEE, MMM"
         return f.string(from: session.date)
     }
 
     var body: some View {
-        HStack(spacing: 0) {
-            // 러닝 번호 배지
-            ZStack {
-                Circle()
-                    .fill(cAccent.opacity(0.15))
-                    .frame(width: 38, height: 38)
-                Text("#\(runNumber)")
-                    .font(.system(size: 11, weight: .bold))
-                    .foregroundColor(cAccent)
+        VStack(spacing: 0) {
+            // ─── Row 1: badge · day · weekday+month · distance ───
+            HStack(alignment: .center, spacing: 10) {
+                // Number badge
+                ZStack {
+                    RoundedRectangle(cornerRadius: 7)
+                        .fill(cAccent.opacity(themeBackground.isDark ? 0.2 : 0.12))
+                        .frame(width: 32, height: 32)
+                    Text("#\(runNumber)")
+                        .font(.pretendard(.bold, size: 10))
+                        .foregroundColor(cAccent)
+                }
+
+                // Day + weekday/month
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(dayStr)
+                        .font(.pretendard(.bold, size: 18))
+                        .foregroundColor(cText)
+                        .lineLimit(1)
+                    Text(weekdayMonthStr)
+                        .font(.pretendard(.medium, size: 10))
+                        .foregroundColor(cSub)
+                        .lineLimit(1)
+                }
+
+                Spacer()
+
+                // Distance (right-aligned, prominent)
+                HStack(alignment: .lastTextBaseline, spacing: 3) {
+                    Text(distanceStr)
+                        .font(.pretendard(.bold, size: 22))
+                        .foregroundColor(cText)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                    Text(distanceUnit.symbol)
+                        .font(.pretendard(.semiBold, size: 11))
+                        .foregroundColor(cSub)
+                }
             }
-            .padding(.trailing, 12)
+            .padding(.horizontal, 14)
+            .padding(.top, 14)
+            .padding(.bottom, 10)
 
-            // 날짜
-            VStack(alignment: .leading, spacing: 2) {
-                Text(dateStr)
-                    .font(.system(size: 13, weight: .bold))
-                    .foregroundColor(cText)
-                Text(L(.columnDate, language))
-                    .font(.system(size: 9, weight: .medium))
-                    .foregroundColor(cSub)
+            // Divider
+            Rectangle()
+                .fill(themeBackground.lineColor)
+                .frame(height: 1)
+                .padding(.horizontal, 14)
+
+            // ─── Row 2: pace · time · calories ───
+            HStack(spacing: 0) {
+                bottomStat(value: paceStr,     unit: "/\(distanceUnit.symbol)", label: L(.dashboardAvgPace, language))
+                statDivider
+                bottomStat(value: durationStr, unit: "",                         label: L(.columnTime, language))
+                statDivider
+                bottomStat(value: caloriesStr, unit: "kcal",                     label: L(.dashboardTotalCalories, language))
             }
-            .frame(width: 44, alignment: .leading)
-
-            Spacer()
-
-            // 거리
-            statColumn(value: distanceStr, unit: distanceUnit.symbol)
-
-            divider
-
-            // 시간
-            statColumn(value: durationStr, unit: L(.columnTime, language))
-
-            divider
-
-            // 칼로리
-            statColumn(value: caloriesStr, unit: "kcal")
-
-            divider
-
-            // 페이스
-            statColumn(value: paceStr, unit: "/\(distanceUnit.symbol)")
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 20)
-        .background(cCard)
-        .cornerRadius(14)
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(cCard)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(
+                            themeBackground.isDark ? Color.white.opacity(0.05) : Color(hex: "#0D1220").opacity(0.04),
+                            lineWidth: 1
+                        )
+                )
+        )
     }
 
-    private var divider: some View {
+    private var statDivider: some View {
         Rectangle()
-            .fill(cSub.opacity(0.2))
-            .frame(width: 1, height: 28)
+            .fill(themeBackground.lineColor)
+            .frame(width: 1, height: 22)
             .padding(.horizontal, 10)
     }
 
-    private func statColumn(value: String, unit: String) -> some View {
-        VStack(spacing: 2) {
-            Text(value)
-                .font(.system(size: 14, weight: .bold))
-                .foregroundColor(cText)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
-            if !unit.isEmpty {
-                Text(unit)
-                    .font(.system(size: 9, weight: .medium))
-                    .foregroundColor(cSub)
+    private func bottomStat(value: String, unit: String, label: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(alignment: .lastTextBaseline, spacing: 2) {
+                Text(value)
+                    .font(.pretendard(.semiBold, size: 14))
+                    .foregroundColor(cText)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.85)
+                if !unit.isEmpty {
+                    Text(unit)
+                        .font(.pretendard(.medium, size: 10))
+                        .foregroundColor(cSub)
+                }
             }
+            Text(label)
+                .font(.pretendard(.medium, size: 10))
+                .foregroundColor(cSub)
         }
-        .frame(minWidth: 44)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
