@@ -701,8 +701,6 @@ struct ContentView: View {
             ("number",           "\(monthSessionCount)",                            "",                        t(.thisMonthActivities)),
             ("speedometer",      monthAvgPaceStr,                                   "/\(distanceUnit.symbol)", t(.dashboardAvgPace)),
             ("arrow.left.arrow.right", String(format: "%.1f", monthAvgDistancePerRun), distanceUnit.symbol,   t(.dashboardAvgDistance)),
-            ("figure.walk",      monthTotalStepsStr,                                "",                        t(.dashboardTotalSteps)),
-            ("heart.fill",       monthAvgHeartRateStr,                              "bpm",                     t(.dashboardAvgHeartRate)),
         ]
 
         return LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
