@@ -75,7 +75,8 @@ struct RunSessionDetailView: View {
             VStack(alignment: .leading, spacing: 12) {
                 dateHeader
                 statsCard
-                journalCard
+                difficultyCard
+                notesCard
                 Color.clear.frame(height: 40)
             }
             .padding(.horizontal, 16)
@@ -157,11 +158,11 @@ struct RunSessionDetailView: View {
         .padding(.vertical, 16)
     }
 
-    // MARK: - Journal Card
+    // MARK: - Difficulty Card
 
-    private var journalCard: some View {
+    private var difficultyCard: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(t(.journalSectionTitle))
+            Text(t(.journalDifficultyLabel))
                 .font(.pretendard(.semiBold, size: 14))
                 .foregroundColor(cText)
                 .padding(.horizontal, 16)
@@ -169,12 +170,27 @@ struct RunSessionDetailView: View {
                 .padding(.bottom, 14)
 
             if session.hkWorkoutID != nil {
-                difficultySection
-                Rectangle()
-                    .fill(themeBackground.lineColor)
-                    .frame(height: 1)
-                    .padding(.horizontal, 16)
-                diarySection
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Spacer()
+                        Text(difficultyLabel(difficulty))
+                            .font(.pretendard(.medium, size: 13))
+                            .foregroundColor(cAccent)
+                    }
+                    Slider(value: $difficulty, in: 0...1)
+                        .tint(cAccent)
+                    HStack {
+                        Text(t(.difficultyVeryEasy))
+                        Spacer()
+                        Text(t(.difficultyModerate))
+                        Spacer()
+                        Text(t(.difficultyVeryHard))
+                    }
+                    .font(.pretendard(.medium, size: 10))
+                    .foregroundColor(themeBackground.inkOff)
+                }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 16)
             } else {
                 Text(t(.journalUnavailable))
                     .font(.pretendard(.regular, size: 13))
@@ -196,67 +212,60 @@ struct RunSessionDetailView: View {
         )
     }
 
-    private var difficultySection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text(t(.journalDifficultyLabel))
-                    .font(.pretendard(.medium, size: 13))
-                    .foregroundColor(cSub)
-                Spacer()
-                Text(difficultyLabel(difficulty))
-                    .font(.pretendard(.medium, size: 13))
-                    .foregroundColor(cAccent)
-            }
-            Slider(value: $difficulty, in: 0...1)
-                .tint(cAccent)
-            HStack {
-                Text(t(.difficultyVeryEasy))
-                    .font(.pretendard(.medium, size: 10))
-                    .foregroundColor(themeBackground.inkOff)
-                Spacer()
-                Text(t(.difficultyModerate))
-                    .font(.pretendard(.medium, size: 10))
-                    .foregroundColor(themeBackground.inkOff)
-                Spacer()
-                Text(t(.difficultyVeryHard))
-                    .font(.pretendard(.medium, size: 10))
-                    .foregroundColor(themeBackground.inkOff)
-            }
-        }
-        .padding(.horizontal, 16)
-        .padding(.bottom, 14)
-    }
+    // MARK: - Notes Card
 
-    private var diarySection: some View {
-        VStack(alignment: .leading, spacing: 8) {
+    private var notesCard: some View {
+        VStack(alignment: .leading, spacing: 0) {
             Text(t(.journalDiaryLabel))
-                .font(.pretendard(.medium, size: 13))
-                .foregroundColor(cSub)
-            ZStack(alignment: .topLeading) {
-                if diary.isEmpty {
-                    Text(t(.journalDiaryPlaceholder))
+                .font(.pretendard(.semiBold, size: 14))
+                .foregroundColor(cText)
+                .padding(.horizontal, 16)
+                .padding(.top, 16)
+                .padding(.bottom, 14)
+
+            if session.hkWorkoutID != nil {
+                ZStack(alignment: .topLeading) {
+                    if diary.isEmpty {
+                        Text(t(.journalDiaryPlaceholder))
+                            .font(.pretendard(.regular, size: 14))
+                            .foregroundColor(themeBackground.inkOff)
+                            .padding(.top, 8)
+                            .padding(.leading, 4)
+                            .allowsHitTesting(false)
+                    }
+                    TextEditor(text: $diary)
                         .font(.pretendard(.regular, size: 14))
-                        .foregroundColor(themeBackground.inkOff)
-                        .padding(.top, 8)
-                        .padding(.leading, 4)
-                        .allowsHitTesting(false)
+                        .foregroundColor(cText)
+                        .frame(minHeight: 80)
+                        .scrollContentBackground(.hidden)
+                        .background(Color.clear)
                 }
-                TextEditor(text: $diary)
-                    .font(.pretendard(.regular, size: 14))
-                    .foregroundColor(cText)
-                    .frame(minHeight: 80)
-                    .scrollContentBackground(.hidden)
-                    .background(Color.clear)
+                .padding(12)
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(themeBackground.cardSoft)
+                )
+                .padding(.horizontal, 16)
+                .padding(.bottom, 16)
+            } else {
+                Text(t(.journalUnavailable))
+                    .font(.pretendard(.regular, size: 13))
+                    .foregroundColor(cSub)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 16)
             }
-            .padding(12)
-            .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(themeBackground.cardSoft)
-            )
         }
-        .padding(.horizontal, 16)
-        .padding(.top, 14)
-        .padding(.bottom, 16)
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(cCard)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(
+                            themeBackground.isDark ? Color.white.opacity(0.05) : Color(hex: "#0D1220").opacity(0.04),
+                            lineWidth: 1
+                        )
+                )
+        )
     }
 
     // MARK: - Persistence
