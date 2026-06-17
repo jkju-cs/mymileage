@@ -281,6 +281,7 @@ struct NotificationSettings: Codable {
 
 struct RunSession: Codable, Identifiable {
     var id: UUID
+    var hkWorkoutID: UUID?          // ← 추가 (구 데이터: nil로 디코딩)
     var date: Date
     var distanceKm: Double
     var calories: Double
@@ -332,6 +333,14 @@ struct MonthlyStats: Codable {
         case .duration: return totalDurationMinutes / 60
         }
     }
+}
+
+// MARK: - RunJournalEntry
+
+struct RunJournalEntry: Codable {
+    var difficulty: Double   // 0.0 – 1.0
+    var diary: String
+    var updatedAt: Date
 }
 
 // MARK: - WorkoutSourcePreference
