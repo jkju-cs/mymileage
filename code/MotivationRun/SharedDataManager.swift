@@ -327,6 +327,28 @@ class SharedDataManager {
         UserDefaults.standard.removeObject(forKey: "hkAuthRequested")
         print("🗑️ [SharedDataManager] 전체 데이터 초기화 완료")
     }
+
+    // MARK: - RunJournalEntry
+
+    private let journalKey = "journalEntries"
+
+    func saveJournalEntry(_ entry: RunJournalEntry, for workoutID: UUID) {
+        var dict = loadAllJournalEntries()
+        dict[workoutID.uuidString] = entry
+        guard let data = try? JSONEncoder().encode(dict) else { return }
+        userDefaults?.set(data, forKey: journalKey)
+    }
+
+    func loadJournalEntry(for workoutID: UUID) -> RunJournalEntry? {
+        loadAllJournalEntries()[workoutID.uuidString]
+    }
+
+    private func loadAllJournalEntries() -> [String: RunJournalEntry] {
+        guard let data = userDefaults?.data(forKey: journalKey),
+              let dict = try? JSONDecoder().decode([String: RunJournalEntry].self, from: data)
+        else { return [:] }
+        return dict
+    }
 }
 
 // MARK: - UIImage Resize Helper
