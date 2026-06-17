@@ -1280,7 +1280,7 @@ struct SettingsTabView: View {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 16) {
                         // DATA
-                        settingsSection("Data") {
+                        settingsSection(t(.settingSectionData)) {
                             VStack(spacing: 0) {
                                 Button(action: onSetGoal) {
                                     HStack(spacing: 12) {
@@ -1354,7 +1354,7 @@ struct SettingsTabView: View {
                         }
 
                         // APPEARANCE
-                        settingsSection("General") {
+                        settingsSection(t(.settingSectionGeneral)) {
                             VStack(spacing: 0) {
                                 // Accent colour circles
                                 HStack(spacing: 12) {
@@ -1446,7 +1446,7 @@ struct SettingsTabView: View {
                         }
 
                         // WIDGET
-                        settingsSection("Widget") {
+                        settingsSection(t(.settingSectionWidget)) {
                             VStack(spacing: 0) {
                                 NavigationLink {
                                     WidgetDesignPickerView(
@@ -1678,7 +1678,7 @@ struct SettingsTabView: View {
                         }
 
                         // ABOUT
-                        settingsSection("About") {
+                        settingsSection(t(.settingSectionAbout)) {
                             VStack(spacing: 0) {
                                 HStack(spacing: 12) {
                                     settingsIcon("info.circle.fill", Color(hex: "#6B7280"))
@@ -2536,17 +2536,29 @@ struct CalendarView: View {
                 )
             } else {
                 ForEach(Array(sessions.enumerated()), id: \.element.id) { index, session in
-                    RunSessionCard(
-                        session: session,
-                        runNumber: index + 1,
-                        distanceUnit: distanceUnit,
-                        language: appLanguage,
-                        themeBackground: themeBackground,
-                        cAccent: cAccent,
-                        cCard: cCard,
-                        cText: cText,
-                        cSub: cSub
-                    )
+                    NavigationLink {
+                        RunSessionDetailView(
+                            session: session,
+                            runNumber: index + 1,
+                            distanceUnit: distanceUnit,
+                            appLanguage: appLanguage,
+                            themeAccent: themeAccent,
+                            themeBackground: themeBackground
+                        )
+                    } label: {
+                        RunSessionCard(
+                            session: session,
+                            runNumber: index + 1,
+                            distanceUnit: distanceUnit,
+                            language: appLanguage,
+                            themeBackground: themeBackground,
+                            cAccent: cAccent,
+                            cCard: cCard,
+                            cText: cText,
+                            cSub: cSub
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
             }
         }
