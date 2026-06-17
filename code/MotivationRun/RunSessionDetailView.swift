@@ -5,6 +5,11 @@
 
 import SwiftUI
 
+private let detailDateFormatter: DateFormatter = {
+    let f = DateFormatter()
+    return f
+}()
+
 struct RunSessionDetailView: View {
     let session: RunSession
     let runNumber: Int
@@ -48,10 +53,9 @@ struct RunSessionDetailView: View {
     }
 
     private var dateStr: String {
-        let f = DateFormatter()
-        f.locale = appLanguage.locale
-        f.setLocalizedDateFormatFromTemplate("EEEdMMM")
-        return f.string(from: session.date)
+        detailDateFormatter.locale = appLanguage.locale
+        detailDateFormatter.setLocalizedDateFormatFromTemplate("EEEdMMM")
+        return detailDateFormatter.string(from: session.date)
     }
 
     private func difficultyLabel(_ v: Double) -> String {
