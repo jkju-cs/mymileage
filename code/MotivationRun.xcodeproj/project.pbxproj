@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		66B2F49D2FE2344B00409853 /* RunSessionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66B2F49C2FE2344A00409853 /* RunSessionDetailView.swift */; };
 		66B64BDA2F3B54AD0046DB87 /* MotivationRunApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66B64BD92F3B54AD0046DB87 /* MotivationRunApp.swift */; };
 		66B64BDC2F3B54AD0046DB87 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66B64BDB2F3B54AD0046DB87 /* ContentView.swift */; };
 		66B64BDE2F3B54B30046DB87 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 66B64BDD2F3B54B30046DB87 /* Assets.xcassets */; };
@@ -20,17 +21,15 @@
 		66B64C172F3EB2740046DB87 /* AppIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66B64C162F3EB2740046DB87 /* AppIntent.swift */; };
 		66B64C192F3EB27F0046DB87 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 66B64C182F3EB27F0046DB87 /* Assets.xcassets */; };
 		66B64C1D2F3EB27F0046DB87 /* MotivationRunWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 66B64C092F3EB2740046DB87 /* MotivationRunWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		66B64C262F434FB40046DB87 /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66B64C252F434FB40046DB87 /* KeychainManager.swift */; };
 		66B64C282F434FC80046DB87 /* SharedDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66B64C272F434FC80046DB87 /* SharedDataManager.swift */; };
-		66B64C2A2F434FDB0046DB87 /* StravaService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66B64C292F434FDB0046DB87 /* StravaService.swift */; };
 		66B64C2C2F4360DF0046DB87 /* SharedDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66B64C272F434FC80046DB87 /* SharedDataManager.swift */; };
 		AABBCC001122334455667702 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABBCC001122334455667701 /* Models.swift */; };
 		AABBCC001122334455667703 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABBCC001122334455667701 /* Models.swift */; };
 		AABBCC001122334455667705 /* HealthKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABBCC001122334455667704 /* HealthKitService.swift */; };
 		AABBCC001122334455667707 /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AABBCC001122334455667706 /* HealthKit.framework */; };
 		AABBCC001122334455667709 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABBCC001122334455667708 /* NotificationManager.swift */; };
-		AABBCC00112233445566770B /* LocalizedStrings.swift in Sources (App) */ = {isa = PBXBuildFile; fileRef = AABBCC00112233445566770A /* LocalizedStrings.swift */; };
-		AABBCC00112233445566770C /* LocalizedStrings.swift in Sources (Widget) */ = {isa = PBXBuildFile; fileRef = AABBCC00112233445566770A /* LocalizedStrings.swift */; };
+		AABBCC00112233445566770B /* LocalizedStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABBCC00112233445566770A /* LocalizedStrings.swift */; };
+		AABBCC00112233445566770C /* LocalizedStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABBCC00112233445566770A /* LocalizedStrings.swift */; };
 		AABBCC00112233445566770E /* LogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABBCC00112233445566770D /* LogView.swift */; };
 		AABBCC001122334455667710 /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABBCC00112233445566770F /* StoreManager.swift */; };
 		AABBCC001122334455667713 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AABBCC001122334455667712 /* StoreKit.framework */; };
@@ -83,6 +82,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		66B2F49C2FE2344A00409853 /* RunSessionDetailView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RunSessionDetailView.swift; sourceTree = "<group>"; };
 		66B64BD62F3B54AD0046DB87 /* MotivationRun.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MotivationRun.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		66B64BD92F3B54AD0046DB87 /* MotivationRunApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotivationRunApp.swift; sourceTree = "<group>"; };
 		66B64BDB2F3B54AD0046DB87 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -186,6 +186,7 @@
 		66B64BD82F3B54AD0046DB87 /* MotivationRun */ = {
 			isa = PBXGroup;
 			children = (
+				66B2F49C2FE2344A00409853 /* RunSessionDetailView.swift */,
 				66B64C042F3EB22D0046DB87 /* MotivationRun.entitlements */,
 				AABBCC001122334455667701 /* Models.swift */,
 				AABBCC001122334455667704 /* HealthKitService.swift */,
@@ -213,19 +214,6 @@
 				66B64BE02F3B54B30046DB87 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
-			sourceTree = "<group>";
-		};
-		AABBCC001122334455667720 /* Fonts */ = {
-			isa = PBXGroup;
-			children = (
-				AABBCC001122334455667721 /* Pretendard-Light.otf */,
-				AABBCC001122334455667722 /* Pretendard-Regular.otf */,
-				AABBCC001122334455667723 /* Pretendard-Medium.otf */,
-				AABBCC001122334455667724 /* Pretendard-SemiBold.otf */,
-				AABBCC001122334455667725 /* Pretendard-Bold.otf */,
-				AABBCC001122334455667726 /* Pretendard-ExtraBold.otf */,
-			);
-			path = Fonts;
 			sourceTree = "<group>";
 		};
 		66B64BE92F3B54B30046DB87 /* MotivationRunTests */ = {
@@ -265,6 +253,19 @@
 				66B64C1A2F3EB27F0046DB87 /* Info.plist */,
 			);
 			path = MotivationRunWidget;
+			sourceTree = "<group>";
+		};
+		AABBCC001122334455667720 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				AABBCC001122334455667721 /* Pretendard-Light.otf */,
+				AABBCC001122334455667722 /* Pretendard-Regular.otf */,
+				AABBCC001122334455667723 /* Pretendard-Medium.otf */,
+				AABBCC001122334455667724 /* Pretendard-SemiBold.otf */,
+				AABBCC001122334455667725 /* Pretendard-Bold.otf */,
+				AABBCC001122334455667726 /* Pretendard-ExtraBold.otf */,
+			);
+			path = Fonts;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -445,7 +446,8 @@
 				AABBCC001122334455667702 /* Models.swift in Sources */,
 				AABBCC001122334455667705 /* HealthKitService.swift in Sources */,
 				AABBCC001122334455667709 /* NotificationManager.swift in Sources */,
-				AABBCC00112233445566770B /* LocalizedStrings.swift in Sources (App) */,
+				AABBCC00112233445566770B /* LocalizedStrings.swift in Sources */,
+				66B2F49D2FE2344B00409853 /* RunSessionDetailView.swift in Sources */,
 				66B64C282F434FC80046DB87 /* SharedDataManager.swift in Sources */,
 				66B64BDC2F3B54AD0046DB87 /* ContentView.swift in Sources */,
 				AABBCC00112233445566770E /* LogView.swift in Sources */,
@@ -481,7 +483,7 @@
 				66B64C172F3EB2740046DB87 /* AppIntent.swift in Sources */,
 				66B64C2C2F4360DF0046DB87 /* SharedDataManager.swift in Sources */,
 				66B64C152F3EB2740046DB87 /* MotivationRunWidget.swift in Sources */,
-				AABBCC00112233445566770C /* LocalizedStrings.swift in Sources (Widget) */,
+				AABBCC00112233445566770C /* LocalizedStrings.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -640,7 +642,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MotivationRun/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "MyMileage";
+				INFOPLIST_KEY_CFBundleDisplayName = MyMileage;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -675,7 +677,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MotivationRun/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "MyMileage";
+				INFOPLIST_KEY_CFBundleDisplayName = MyMileage;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -783,7 +785,7 @@
 				DEVELOPMENT_TEAM = VZJYKZ3GSW;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MotivationRunWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "MyMileage";
+				INFOPLIST_KEY_CFBundleDisplayName = MyMileage;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -813,7 +815,7 @@
 				DEVELOPMENT_TEAM = VZJYKZ3GSW;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MotivationRunWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "MyMileage";
+				INFOPLIST_KEY_CFBundleDisplayName = MyMileage;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

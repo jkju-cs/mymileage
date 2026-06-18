@@ -22,21 +22,63 @@ class HealthKitService {
         return types
     }()
 
+    // MARK: - Simulator Mock Data
+
+    #if targetEnvironment(simulator)
+    // (daysAgo, distKm, durationMin, kcal)
+    private static let mockRunData: [(Int, Double, Double, Double)] = [
+        (1,  5.2,  28, 320), (3,  8.1,  46, 490), (6,  3.5,  20, 210),
+        (9,  10.0, 58, 610), (12, 6.4,  36, 385),
+        (15, 7.2,  41, 430), (18, 4.8,  27, 290), (20, 9.5,  54, 570),
+        (23, 5.0,  29, 305), (25, 12.0, 68, 720), (28, 6.7,  38, 400),
+        (31, 8.3,  47, 495), (33, 4.2,  24, 250), (36, 7.8,  44, 465),
+        (40, 5.5,  31, 330), (43, 10.2, 59, 615), (46, 6.0,  34, 360),
+        (49, 8.8,  50, 530), (52, 4.5,  26, 270), (55, 7.1,  40, 425),
+        (58, 9.0,  52, 540), (61, 5.8,  33, 350),
+    ]
+
+    private static func buildMockSessions() -> [RunSession] {
+        let cal = Calendar.current
+        let now = Date()
+        return mockRunData.compactMap { daysAgo, distKm, durationMin, kcal in
+            guard let date = cal.date(byAdding: .day, value: -daysAgo, to: now) else { return nil }
+            return RunSession(
+                id: UUID(), hkWorkoutID: UUID(),
+                date: date, distanceKm: distKm,
+                calories: kcal, durationMinutes: durationMin
+            )
+        }
+    }
+    #endif
+
     // MARK: - HealthKit 사용 가능 여부
 
     func isAvailable() -> Bool {
-        HKHealthStore.isHealthDataAvailable()
+        #if targetEnvironment(simulator)
+        return true
+        #else
+        return HKHealthStore.isHealthDataAvailable()
+        #endif
     }
 
     // MARK: - 권한 요청 이력 (읽기 권한은 API로 확인 불가 → UserDefaults 캐시 사용)
 
     func hasRequestedAuthorization() -> Bool {
-        UserDefaults.standard.bool(forKey: "hkAuthRequested")
+        #if targetEnvironment(simulator)
+        return true
+        #else
+        return UserDefaults.standard.bool(forKey: "hkAuthRequested")
+        #endif
     }
 
     // MARK: - 권한 요청
 
     func requestAuthorization(completion: @escaping (Bool) -> Void) {
+        #if targetEnvironment(simulator)
+        UserDefaults.standard.set(true, forKey: "hkAuthRequested")
+        DispatchQueue.main.async { completion(true) }
+        return
+        #endif
         guard isAvailable() else { completion(false); return }
         store.requestAuthorization(toShare: nil, read: readTypes) { success, error in
             if success {
@@ -53,6 +95,31 @@ class HealthKitService {
     // MARK: - 이번 달 러닝 통계 수집
 
     func fetchMonthlyRunningStats(completion: @escaping (Bool) -> Void) {
+        #if targetEnvironment(simulator)
+        let sessions = Self.buildMockSessions()
+        let cal = Calendar.current
+        let now = Date()
+        let comps = cal.dateComponents([.year, .month], from: now)
+        guard let startOfMonth = cal.date(from: comps),
+              let startOfNext  = cal.date(byAdding: .month, value: 1, to: startOfMonth) else {
+            DispatchQueue.main.async { completion(false) }; return
+        }
+        let thisMonth = sessions.filter { $0.date >= startOfMonth && $0.date < startOfNext }
+        let stats = MonthlyStats(
+            year: comps.year ?? 2026, month: comps.month ?? 6,
+            totalDistanceKm:      thisMonth.reduce(0) { $0 + $1.distanceKm },
+            totalCalories:        thisMonth.reduce(0) { $0 + $1.calories },
+            totalDurationMinutes: thisMonth.reduce(0) { $0 + $1.durationMinutes },
+            goalType:    SharedDataManager.shared.getGoalType(),
+            goalTarget:  SharedDataManager.shared.getGoalTarget(),
+            lastSyncTime: now,
+            activitiesCount: thisMonth.count,
+            sessions: thisMonth,
+            totalSteps: nil, avgHeartRateBpm: nil
+        )
+        SharedDataManager.shared.saveMonthlyStats(stats)
+        DispatchQueue.main.async { completion(true) }
+        #else
         guard isAvailable() else { completion(false); return }
 
         let calendar = Calendar.current
@@ -127,11 +194,6 @@ class HealthKitService {
             let totalDurationMin = totalDurationSec / 60
             let avgHR: Double? = heartRateCount > 0 ? heartRateSum / Double(heartRateCount) : nil
 
-            let remainingDays = max(
-                calendar.dateComponents([.day], from: now, to: startOfNextMonth).day ?? 1,
-                1
-            )
-
             print("🏃 [HealthKit] 집계: \(String(format: "%.1f", totalKm))km | \(Int(totalCalories))kcal | \(String(format: "%.0f", totalDurationMin))분 (\(filtered.count)회)")
 
             let stats = MonthlyStats(
@@ -154,11 +216,17 @@ class HealthKitService {
         }
 
         store.execute(query)
+        #endif
     }
 
     // MARK: - 전체 러닝 기록 수집 (Log 탭용)
 
     func fetchAllRunningSessions(completion: @escaping ([RunSession]) -> Void) {
+        #if targetEnvironment(simulator)
+        let sessions = Self.buildMockSessions()
+        DispatchQueue.main.async { completion(sessions) }
+        return
+        #endif
         guard isAvailable() else { completion([]); return }
 
         let predicate = HKQuery.predicateForWorkouts(with: .running)
@@ -199,6 +267,10 @@ class HealthKitService {
     // MARK: - 사용 가능한 러닝 소스 목록 조회 (Data Source Filter 설정 UI용)
 
     func fetchAvailableRunningSources(completion: @escaping ([(name: String, bundleID: String)]) -> Void) {
+        #if targetEnvironment(simulator)
+        DispatchQueue.main.async { completion([("Apple Health", "com.apple.health")]) }
+        return
+        #endif
         guard isAvailable() else { completion([]); return }
         let predicate = HKQuery.predicateForWorkouts(with: .running)
         let query = HKSampleQuery(
@@ -206,7 +278,11 @@ class HealthKitService {
             predicate: predicate,
             limit: HKObjectQueryNoLimit,
             sortDescriptors: nil
-        ) { _, samples, _ in
+        ) { [weak self] _, samples, _ in
+            guard let self = self else {
+                DispatchQueue.main.async { completion([]) }
+                return
+            }
             let workouts = samples as? [HKWorkout] ?? []
             var seen = Set<String>()
             var sources: [(name: String, bundleID: String)] = []

@@ -35,3 +35,12 @@ Podfile.lock
 # Python cache
 __pycache__/
 *.pyc
+
+# Claude / AI tools
+.claude/
+.superpowers/
+
+# Project output / reference docs
+output/
+reference/
+*.html

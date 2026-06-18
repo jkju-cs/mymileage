@@ -15,7 +15,13 @@ final class StoreManager: ObservableObject {
 
     static let proProductID = "com.jangkyuju.motivationrun.pro"
 
-    @Published private(set) var isPro: Bool = SharedDataManager.shared.getIsPro()
+    @Published private(set) var isPro: Bool = {
+        #if DEBUG
+        return true
+        #else
+        return SharedDataManager.shared.getIsPro()
+        #endif
+    }()
     @Published private(set) var proProduct: Product?
     @Published private(set) var purchaseInProgress: Bool = false
 
@@ -24,9 +30,12 @@ final class StoreManager: ObservableObject {
     // MARK: - 초기화
 
     func start() {
+        print("🚀 [StoreManager] start() 호출됨 | isPro: \(isPro)")
         transactionListener = listenForTransactions()
         Task { await loadProduct() }
+        #if !DEBUG
         Task { await refreshPurchaseStatus() }
+        #endif
     }
 
     // MARK: - 상품 로드

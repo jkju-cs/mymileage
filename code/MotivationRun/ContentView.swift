@@ -528,25 +528,6 @@ struct ContentView: View {
         return result
     }
 
-    /// X축에 표시할 일요일 day 목록
-    private var sundaysInMonth: [Int] {
-        let cal = Calendar.current
-        var comps = DateComponents()
-        comps.year = selectedYear
-        comps.month = selectedMonth
-        comps.day = 1
-        guard let firstOfMonth = cal.date(from: comps) else { return [] }
-        let days = daysInSelectedMonth
-        var sundays: [Int] = []
-        for d in 1...days {
-            comps.day = d
-            if let date = cal.date(from: comps), cal.component(.weekday, from: date) == 1 {
-                sundays.append(d)
-            }
-        }
-        return sundays
-    }
-
     private var dailyBarChart: some View {
         let data = dailyChartData
         let maxVal = data.max() ?? 0
@@ -560,7 +541,7 @@ struct ContentView: View {
         let q2 = chartMax * 0.50
         let q3 = chartMax * 0.75
 
-        let yAxisW: CGFloat = 36
+        let yAxisW: CGFloat = 26
 
         return VStack(spacing: 0) {
             // MARK: 지표 탭
@@ -648,7 +629,7 @@ struct ContentView: View {
                     xAxisLabels(chartW: chartW, chartH: chartH, yAxisW: yAxisW, totalDays: totalDays)
                 }
             }
-            .aspectRatio(1.43, contentMode: .fit)
+            .aspectRatio(1.6, contentMode: .fit)
             .padding(.horizontal, 8)
             .padding(.bottom, 12)
         }
@@ -657,25 +638,26 @@ struct ContentView: View {
     }
 
     private func chartYLabel(_ value: Double) -> String {
+        if value == 0 { return "0" }
         switch chartMetric {
         case .distance:
             return value >= 10 ? String(format: "%.0f", value) : String(format: "%.1f", value)
         case .duration:
-            let m = Int(value)
-            return m >= 60 ? "\(m / 60)h" : "\(m)"
+            return value >= 10 ? "\(Int(ceil(value / 10)) * 10)" : "\(Int(ceil(value)))"
         case .calories:
-            return String(format: "%.0f", value)
+            return value >= 10 ? "\(Int(ceil(value / 10)) * 10)" : "\(Int(ceil(value)))"
         }
     }
 
     private func xAxisLabels(chartW: CGFloat, chartH: CGFloat, yAxisW: CGFloat, totalDays: Int) -> some View {
-        let sundays = sundaysInMonth
-        // 표시할 일자: 1일, 일요일들, 마지막 날
-        var labelDays: [Int] = [1]
-        for s in sundays {
-            if s != 1 && s != totalDays { labelDays.append(s) }
+        // 1, 5, 10, 15, 20[, 25] + 마지막 날 (25는 마지막 날과 4일 이상 차이날 때만)
+        var labelDays: [Int] = [1, 5, 10, 15, 20]
+        if totalDays - 25 >= 4 { labelDays.append(25) }
+        if totalDays == 31 {
+            labelDays.append(31)
+        } else {
+            labelDays.append(totalDays)
         }
-        labelDays.append(totalDays)
 
         return ForEach(labelDays, id: \.self) { day in
             let x = yAxisW + (CGFloat(day - 1) + 0.5) * (chartW / CGFloat(totalDays))
@@ -775,6 +757,7 @@ struct ContentView: View {
             return
         }
         isAuthorized = true
+        guard !isSyncing else { return }
         isSyncing = true
         HealthKitService.shared.fetchMonthlyRunningStats { success in
             isSyncing = false
