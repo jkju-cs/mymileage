@@ -6,6 +6,8 @@
 	<string>MyMileage reads your running workouts from Apple Health to calculate your monthly progress.</string>
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>MyMileage does not write any data to Apple Health.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Pretendard-Light.otf</string>
