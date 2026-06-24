@@ -63,7 +63,7 @@ struct FloatingTabBar: View {
                 startPoint: .top,
                 endPoint: .bottom
             )
-            .frame(height: 40)
+            .frame(height: 20)
             .allowsHitTesting(false)
 
             // Pill card on solid background (blocks all content below)
@@ -109,7 +109,7 @@ struct FloatingTabBar: View {
                         )
                 )
                 .padding(.horizontal, 16)
-                .padding(.bottom, safeBottom)
+                .padding(.bottom, 1)
             }
             .frame(maxWidth: .infinity)
             .background(appBg)

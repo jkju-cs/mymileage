@@ -240,6 +240,7 @@ struct ContentView: View {
                 primarySoft: cAccent.opacity(0.12),
                 inkLow: cSub
             )
+            .ignoresSafeArea(edges: .bottom)
         }
     }
 
