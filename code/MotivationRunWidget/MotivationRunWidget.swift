@@ -19,6 +19,7 @@ struct SimpleEntry: TimelineEntry {
     let bgIsDark: Bool
     let widgetDesign: WidgetDesign
     let isPro: Bool
+    let runFrequency: RunFrequency
 }
 
 // MARK: - 공통 계산
@@ -35,7 +36,7 @@ private struct WidgetStats {
     let distanceUnit: DistanceUnit
     let language: AppLanguage
 
-    init(stats: MonthlyStats?, date: Date, distanceUnit: DistanceUnit, language: AppLanguage) {
+    init(stats: MonthlyStats?, date: Date, distanceUnit: DistanceUnit, language: AppLanguage, runFrequency: RunFrequency) {
         let cal = Calendar.current
         self.distanceUnit = distanceUnit
         self.language     = language
@@ -64,7 +65,7 @@ private struct WidgetStats {
         }
         remainingDays = days
 
-        frequency = SharedDataManager.shared.getRunFrequency()
+        frequency = runFrequency
         let sessions = frequency.expectedSessions(remainingDays: days)
         perSessionValue = remaining / sessions
     }
@@ -113,11 +114,12 @@ private struct WidgetColors {
     let dotColor: Color
 
     init(entry: SimpleEntry) {
-        let hasBg  = entry.bgImageData != nil
+        let hasBg  = entry.isPro && entry.bgImageData != nil
         let isDark = entry.bgIsDark
+        let accentColor = entry.themeBackground.isDark ? entry.themeAccent.colorDark : entry.themeAccent.color
         fgMain   = hasBg ? (isDark ? .white : .black) : entry.themeBackground.mainText
         fgSub    = hasBg ? (isDark ? .white.opacity(0.7) : .black.opacity(0.6)) : entry.themeBackground.subText
-        fgAccent = hasBg ? (isDark ? .white : .black) : entry.themeAccent.color
+        fgAccent = hasBg ? (isDark ? .white : .black) : accentColor
         fgOnBar  = hasBg ? (isDark ? .black : .white) : entry.themeAccent.foregroundColor
         barTrack = hasBg ? (isDark ? .white.opacity(0.3) : .black.opacity(0.3)) : entry.themeBackground.grayBg
         dotColor = hasBg ? (isDark ? .white.opacity(0.5) : .black.opacity(0.4)) : entry.themeBackground.grayBg
@@ -131,7 +133,8 @@ struct MinimalWidgetView: View {
 
     var body: some View {
         let s = WidgetStats(stats: entry.stats, date: entry.date,
-                            distanceUnit: entry.distanceUnit, language: entry.language)
+                            distanceUnit: entry.distanceUnit, language: entry.language,
+                            runFrequency: entry.runFrequency)
         let c = WidgetColors(entry: entry)
         let lang = entry.language
 
@@ -176,7 +179,8 @@ struct CompactWidgetView: View {
 
     var body: some View {
         let s = WidgetStats(stats: entry.stats, date: entry.date,
-                            distanceUnit: entry.distanceUnit, language: entry.language)
+                            distanceUnit: entry.distanceUnit, language: entry.language,
+                            runFrequency: entry.runFrequency)
         let c = WidgetColors(entry: entry)
         let lang = entry.language
 
@@ -242,7 +246,8 @@ struct BalancedWidgetView: View {
 
     var body: some View {
         let s = WidgetStats(stats: entry.stats, date: entry.date,
-                            distanceUnit: entry.distanceUnit, language: entry.language)
+                            distanceUnit: entry.distanceUnit, language: entry.language,
+                            runFrequency: entry.runFrequency)
         let c = WidgetColors(entry: entry)
         let lang = entry.language
 
@@ -319,7 +324,8 @@ struct MediumWidgetView: View {
 
     var body: some View {
         let s    = WidgetStats(stats: entry.stats, date: entry.date,
-                               distanceUnit: entry.distanceUnit, language: entry.language)
+                               distanceUnit: entry.distanceUnit, language: entry.language,
+                               runFrequency: entry.runFrequency)
         let lang = entry.language
         let c    = WidgetColors(entry: entry)
 
@@ -431,7 +437,8 @@ struct AccessoryCircularView: View {
 
     var body: some View {
         let s = WidgetStats(stats: entry.stats, date: entry.date,
-                            distanceUnit: entry.distanceUnit, language: entry.language)
+                            distanceUnit: entry.distanceUnit, language: entry.language,
+                            runFrequency: entry.runFrequency)
 
         Gauge(value: s.progress) {
             Image(systemName: "figure.run")
@@ -458,7 +465,8 @@ struct AccessoryRectangularView: View {
 
     var body: some View {
         let s = WidgetStats(stats: entry.stats, date: entry.date,
-                            distanceUnit: entry.distanceUnit, language: entry.language)
+                            distanceUnit: entry.distanceUnit, language: entry.language,
+                            runFrequency: entry.runFrequency)
 
         VStack(alignment: .leading, spacing: 2) {
             HStack(spacing: 4) {
@@ -538,7 +546,8 @@ struct Provider: TimelineProvider {
                     themeAccent: .yellow, themeBackground: .black,
                     distanceUnit: .km, language: .english,
                     bgImageData: nil, bgIsDark: true,
-                    widgetDesign: .complete, isPro: false)
+                    widgetDesign: .complete, isPro: false,
+                    runFrequency: .everyOther)
     }
 
     func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> Void) {
@@ -568,7 +577,8 @@ struct Provider: TimelineProvider {
             bgImageData: bgData,
             bgIsDark: mgr.isWidgetBgDark(),
             widgetDesign: mgr.getWidgetDesign(),
-            isPro: mgr.getIsPro()
+            isPro: mgr.getIsPro(),
+            runFrequency: mgr.getRunFrequency()
         )
     }
 }

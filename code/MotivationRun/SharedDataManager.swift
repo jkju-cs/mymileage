@@ -320,7 +320,8 @@ class SharedDataManager {
                     "themeAccent", "themeBackground", "distanceUnit",
                     "notificationSettings", "hasWidgetBgImage",
                     "widgetBgIsDark", "widgetDesign", "workoutSourcePreference",
-                    "galleryImageIDs", "activeGalleryID"]
+                    "galleryImageIDs", "activeGalleryID",
+                    "appLanguage", "journalEntries"]
         keys.forEach { userDefaults?.removeObject(forKey: $0) }
         if let url = widgetBgImageURL { try? FileManager.default.removeItem(at: url) }
         if let dir = galleryDirectoryURL { try? FileManager.default.removeItem(at: dir) }
@@ -371,22 +372,27 @@ extension UIImage {
 
     /// 이미지의 평균 밝기(0.0=검정, 1.0=흰색) — 위젯 배경 텍스트 색상 결정용
     func averageBrightness() -> CGFloat {
-        // 성능을 위해 40x40 으로 축소 후 픽셀 평균 계산
-        let thumbSize = CGSize(width: 40, height: 40)
-        let renderer = UIGraphicsImageRenderer(size: thumbSize)
-        let thumb = renderer.image { _ in draw(in: CGRect(origin: .zero, size: thumbSize)) }
+        let side = 40
+        let bytesPerRow = side * 4
+        // 명시적 RGBA big-endian + premultipliedLast 컨텍스트 사용 → ptr[0]=R, ptr[1]=G, ptr[2]=B, ptr[3]=A
+        guard let context = CGContext(
+            data: nil,
+            width: side, height: side,
+            bitsPerComponent: 8,
+            bytesPerRow: bytesPerRow,
+            space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGBitmapInfo.byteOrder32Big.rawValue | CGImageAlphaInfo.premultipliedLast.rawValue
+        ),
+        let cgSelf = self.cgImage else { return 0.5 }
 
-        guard let cgImage = thumb.cgImage,
-              let data = cgImage.dataProvider?.data,
-              let ptr = CFDataGetBytePtr(data) else { return 0.5 }
+        context.draw(cgSelf, in: CGRect(x: 0, y: 0, width: side, height: side))
 
-        let bytesPerPixel = cgImage.bitsPerPixel / 8
-        let totalPixels = cgImage.width * cgImage.height
-        guard totalPixels > 0, bytesPerPixel >= 3 else { return 0.5 }
+        guard let ptr = context.data?.assumingMemoryBound(to: UInt8.self) else { return 0.5 }
+        let totalPixels = side * side
 
         var totalLuminance: Double = 0
         for i in 0..<totalPixels {
-            let offset = i * bytesPerPixel
+            let offset = i * 4
             let r = Double(ptr[offset])     / 255.0
             let g = Double(ptr[offset + 1]) / 255.0
             let b = Double(ptr[offset + 2]) / 255.0

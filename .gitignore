@@ -39,6 +39,7 @@ __pycache__/
 # Claude / AI tools
 .claude/
 .superpowers/
+docs/
 
 # Project output / reference docs
 output/

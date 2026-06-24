@@ -32,14 +32,13 @@ enum PretendardWeight {
 // MARK: - Floating Tab Bar (HMG Design · Pill Card)
 
 struct FloatingTabBar: View {
-    let selectedTab: Int
+    @Binding var selectedTab: Int
     let isDark: Bool
     let appBg: Color
     let cardBg: Color
     let primaryColor: Color
     let primarySoft: Color
     let inkLow: Color
-    let onTab: (Int) -> Void
 
     private var safeBottom: CGFloat {
         UIApplication.shared
@@ -72,7 +71,7 @@ struct FloatingTabBar: View {
                 HStack(spacing: 0) {
                     ForEach(0..<tabs.count, id: \.self) { i in
                         let on = selectedTab == i
-                        Button(action: { onTab(i) }) {
+                        Button(action: { withAnimation(.easeInOut(duration: 0.15)) { selectedTab = i } }) {
                             VStack(spacing: 3) {
                                 Image(systemName: tabs[i].icon)
                                     .font(.system(size: 20, weight: on ? .semibold : .regular))

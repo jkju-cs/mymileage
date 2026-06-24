@@ -77,12 +77,11 @@ class HealthKitService {
         #if targetEnvironment(simulator)
         UserDefaults.standard.set(true, forKey: "hkAuthRequested")
         DispatchQueue.main.async { completion(true) }
-        return
-        #endif
+        #else
         guard isAvailable() else { completion(false); return }
         store.requestAuthorization(toShare: nil, read: readTypes) { success, error in
-            if success {
-                // 권한 다이얼로그를 통과했음을 기록 (granted/denied 여부와 무관)
+            // 다이얼로그 표시 여부 기록 — granted/denied 무관, error 없으면 다이얼로그 보였음
+            if error == nil {
                 UserDefaults.standard.set(true, forKey: "hkAuthRequested")
             }
             if let error = error {
@@ -90,6 +89,7 @@ class HealthKitService {
             }
             DispatchQueue.main.async { completion(success) }
         }
+        #endif
     }
 
     // MARK: - 이번 달 러닝 통계 수집
@@ -225,8 +225,7 @@ class HealthKitService {
         #if targetEnvironment(simulator)
         let sessions = Self.buildMockSessions()
         DispatchQueue.main.async { completion(sessions) }
-        return
-        #endif
+        #else
         guard isAvailable() else { completion([]); return }
 
         let predicate = HKQuery.predicateForWorkouts(with: .running)
@@ -262,6 +261,7 @@ class HealthKitService {
         }
 
         store.execute(query)
+        #endif
     }
 
     // MARK: - 사용 가능한 러닝 소스 목록 조회 (Data Source Filter 설정 UI용)
@@ -269,8 +269,7 @@ class HealthKitService {
     func fetchAvailableRunningSources(completion: @escaping ([(name: String, bundleID: String)]) -> Void) {
         #if targetEnvironment(simulator)
         DispatchQueue.main.async { completion([("Apple Health", "com.apple.health")]) }
-        return
-        #endif
+        #else
         guard isAvailable() else { completion([]); return }
         let predicate = HKQuery.predicateForWorkouts(with: .running)
         let query = HKSampleQuery(
@@ -297,6 +296,7 @@ class HealthKitService {
             DispatchQueue.main.async { completion(sources) }
         }
         store.execute(query)
+        #endif
     }
 
     private func displayName(for bundleID: String, fallback: String) -> String {

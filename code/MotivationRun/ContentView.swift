@@ -61,7 +61,7 @@ struct ContentView: View {
     @State private var monthlyStats: MonthlyStats?
 
     // MARK: - 테마 색상 (동적)
-    private var cAccent:   Color { themeAccent.color }
+    private var cAccent:   Color { themeBackground.isDark ? themeAccent.colorDark : themeAccent.color }
     private var cBg:       Color { themeBackground.appBg }
     private var cCard:     Color { themeBackground.cardBg }
     private var cGray:     Color { themeBackground.grayBg }
@@ -232,16 +232,13 @@ struct ContentView: View {
 
             // Floating pill tab bar
             FloatingTabBar(
-                selectedTab: selectedTab,
+                selectedTab: $selectedTab,
                 isDark: themeBackground.isDark,
                 appBg: cBg,
                 cardBg: cCard,
                 primaryColor: cAccent,
                 primarySoft: cAccent.opacity(0.12),
-                inkLow: cSub,
-                onTab: { tab in
-                    withAnimation(.easeInOut(duration: 0.15)) { selectedTab = tab }
-                }
+                inkLow: cSub
             )
         }
         .ignoresSafeArea(edges: .bottom)
@@ -801,22 +798,32 @@ struct ContentView: View {
     // iOS large title ≈ 34pt → 15% reduction = ~29pt
     private func applyNavBarStyle() {
         let isDark = themeBackground.isDark
+        let bgColor = isDark
+            ? UIColor(red: 11/255, green: 13/255, blue: 18/255, alpha: 1)   // #0B0D12
+            : UIColor(red: 232/255, green: 234/255, blue: 237/255, alpha: 1) // #E8EAED
         let titleColor = isDark
-            ? UIColor(red: 0.949, green: 0.953, blue: 0.961, alpha: 1)  // #F2F3F5
-            : UIColor(red: 0.055, green: 0.067, blue: 0.086, alpha: 1)  // #0E1116
+            ? UIColor(red: 0.949, green: 0.953, blue: 0.961, alpha: 1)      // #F2F3F5
+            : UIColor(red: 0.055, green: 0.067, blue: 0.086, alpha: 1)      // #0E1116
         let largeFont = UIFont(name: "Pretendard-Bold", size: 29)
             ?? UIFont.boldSystemFont(ofSize: 29)
         let inlineFont = UIFont(name: "Pretendard-SemiBold", size: 15)
             ?? UIFont.systemFont(ofSize: 15, weight: .semibold)
 
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithTransparentBackground()
-        appearance.largeTitleTextAttributes = [.font: largeFont, .foregroundColor: titleColor]
-        appearance.titleTextAttributes      = [.font: inlineFont, .foregroundColor: titleColor]
+        let standardAppearance = UINavigationBarAppearance()
+        standardAppearance.configureWithOpaqueBackground()
+        standardAppearance.backgroundColor = bgColor
+        standardAppearance.shadowColor = .clear
+        standardAppearance.largeTitleTextAttributes = [.font: largeFont, .foregroundColor: titleColor]
+        standardAppearance.titleTextAttributes      = [.font: inlineFont, .foregroundColor: titleColor]
 
-        UINavigationBar.appearance().standardAppearance  = appearance
-        UINavigationBar.appearance().scrollEdgeAppearance = appearance
-        UINavigationBar.appearance().compactAppearance    = appearance
+        let scrollEdgeAppearance = UINavigationBarAppearance()
+        scrollEdgeAppearance.configureWithTransparentBackground()
+        scrollEdgeAppearance.largeTitleTextAttributes = [.font: largeFont, .foregroundColor: titleColor]
+        scrollEdgeAppearance.titleTextAttributes      = [.font: inlineFont, .foregroundColor: titleColor]
+
+        UINavigationBar.appearance().standardAppearance   = standardAppearance
+        UINavigationBar.appearance().scrollEdgeAppearance = scrollEdgeAppearance
+        UINavigationBar.appearance().compactAppearance    = standardAppearance
     }
 }
 
@@ -1393,9 +1400,10 @@ struct SettingsTabView: View {
                                     }
                                     .pickerStyle(.segmented)
                                     .frame(width: 100)
-                                    .onChange(of: distanceUnit) {
+                                    .onChange(of: distanceUnit) { oldUnit, newUnit in
                                         if goalType == .distance {
-                                            let converted = distanceUnit == .mile
+                                            // oldUnit 기준으로 변환 방향을 결정 — 이중 변환 방지
+                                            let converted = oldUnit == .km
                                                 ? goalTarget * DistanceUnit.mile.conversionFromKm
                                                 : goalTarget / DistanceUnit.mile.conversionFromKm
                                             goalTarget = converted
@@ -2275,7 +2283,7 @@ struct CalendarView: View {
     @State private var displayMonth: Date = Date()
 
     private func t(_ key: LK) -> String { L(key, appLanguage) }
-    private var cAccent: Color  { themeAccent.color }
+    private var cAccent: Color  { themeBackground.isDark ? themeAccent.colorDark : themeAccent.color }
     private var cBg:     Color  { themeBackground.appBg }
     private var cCard:   Color  { themeBackground.cardBg }
     private var cText:   Color  { themeBackground.mainText }
@@ -2322,7 +2330,7 @@ struct CalendarView: View {
             .navigationBarTitleDisplayMode(.large)
             .preferredColorScheme(themeBackground.colorScheme)
             .onAppear { focusLastWorkoutOfMonth() }
-            .onChange(of: displayMonth) { _ in focusLastWorkoutOfMonth() }
+            .onChange(of: displayMonth) { focusLastWorkoutOfMonth() }
         }
         .navigationViewStyle(.stack)
     }

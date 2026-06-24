@@ -16,7 +16,7 @@ final class StoreManager: ObservableObject {
     static let proProductID = "com.jangkyuju.motivationrun.pro"
 
     @Published private(set) var isPro: Bool = {
-        #if DEBUG
+        #if targetEnvironment(simulator)
         return true
         #else
         return SharedDataManager.shared.getIsPro()
@@ -33,7 +33,7 @@ final class StoreManager: ObservableObject {
         print("🚀 [StoreManager] start() 호출됨 | isPro: \(isPro)")
         transactionListener = listenForTransactions()
         Task { await loadProduct() }
-        #if !DEBUG
+        #if !targetEnvironment(simulator)
         Task { await refreshPurchaseStatus() }
         #endif
     }
@@ -81,7 +81,17 @@ final class StoreManager: ObservableObject {
 
     func restorePurchases() async {
         try? await AppStore.sync()
-        await refreshPurchaseStatus()
+        // 명시적 복원 시에는 엔타이틀먼트 없으면 Pro 해제 (사용자 의도)
+        var foundPro = false
+        for await result in Transaction.currentEntitlements {
+            if let transaction = try? checkVerified(result),
+               transaction.productID == Self.proProductID {
+                setProStatus(true)
+                foundPro = true
+                break
+            }
+        }
+        if !foundPro { setProStatus(false) }
     }
 
     // MARK: - 구매 상태 확인
@@ -94,8 +104,8 @@ final class StoreManager: ObservableObject {
                 return
             }
         }
-        // entitlement 없으면 무료 상태
-        setProStatus(false)
+        // StoreKit이 엔타이틀먼트를 반환하지 않을 때 네트워크 오류와 실제 미구매를 구분할 수 없으므로
+        // 캐시된 Pro 상태를 유지 — 사용자가 명시적으로 '구매 복원'을 해야만 false로 전환
     }
 
     // MARK: - 트랜잭션 리스너

@@ -26,7 +26,7 @@ struct LogView: View {
     @State private var isLoading = false
 
     private func t(_ key: LK) -> String { L(key, appLanguage) }
-    private var cAccent: Color  { themeAccent.color }
+    private var cAccent: Color  { themeBackground.isDark ? themeAccent.colorDark : themeAccent.color }
     private var cBg:     Color  { themeBackground.appBg }
     private var cCard:   Color  { themeBackground.cardBg }
     private var cGray:   Color  { themeBackground.grayBg }
