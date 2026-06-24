@@ -180,57 +180,57 @@ struct ContentView: View {
     }
 
     var body: some View {
-        ZStack(alignment: .bottom) {
-            // Tab content — all kept in memory to preserve scroll state
-            ZStack {
-                dashboardTab
-                    .opacity(selectedTab == 0 ? 1 : 0)
-                    .allowsHitTesting(selectedTab == 0)
+        // Tab content — all kept in memory to preserve scroll state.
+        // .overlay places FloatingTabBar in a separate UIKit layer above NavigationView,
+        // which avoids UIKit hit-test interception from the UINavigationController.
+        ZStack {
+            dashboardTab
+                .opacity(selectedTab == 0 ? 1 : 0)
+                .allowsHitTesting(selectedTab == 0)
 
-                LogView(themeAccent: themeAccent, themeBackground: themeBackground,
-                        distanceUnit: distanceUnit, appLanguage: appLanguage,
-                        tabBarHeight: 88)
-                    .opacity(selectedTab == 1 ? 1 : 0)
-                    .allowsHitTesting(selectedTab == 1)
+            LogView(themeAccent: themeAccent, themeBackground: themeBackground,
+                    distanceUnit: distanceUnit, appLanguage: appLanguage,
+                    tabBarHeight: 88)
+                .opacity(selectedTab == 1 ? 1 : 0)
+                .allowsHitTesting(selectedTab == 1)
 
-                CalendarView(themeAccent: themeAccent, themeBackground: themeBackground,
-                             distanceUnit: distanceUnit, appLanguage: appLanguage,
-                             allSessions: allSessions,
-                             tabBarHeight: 88)
-                    .opacity(selectedTab == 2 ? 1 : 0)
-                    .allowsHitTesting(selectedTab == 2)
+            CalendarView(themeAccent: themeAccent, themeBackground: themeBackground,
+                         distanceUnit: distanceUnit, appLanguage: appLanguage,
+                         allSessions: allSessions,
+                         tabBarHeight: 88)
+                .opacity(selectedTab == 2 ? 1 : 0)
+                .allowsHitTesting(selectedTab == 2)
 
-                SettingsTabView(
-                    storeManager: storeManager,
-                    accent: $themeAccent,
-                    background: $themeBackground,
-                    distanceUnit: $distanceUnit,
-                    notificationSettings: $notificationSettings,
-                    language: $appLanguage,
-                    goalType: $goalType,
-                    goalTarget: $goalTarget,
-                    showHelpSheet: $showHelpSheet,
-                    onSettingsChanged: {
-                        rescheduleNotifications()
-                        loadData()
-                        WidgetCenter.shared.reloadAllTimelines()
-                    },
-                    onReset: {
-                        loadData()
-                        WidgetCenter.shared.reloadAllTimelines()
-                    },
-                    onSyncHealthKit: syncWithHealthKit,
-                    onSetGoal: { showGoalSheet = true },
-                    isSyncing: isSyncing,
-                    isAuthorized: isAuthorized,
-                    tabBarHeight: 88
-                )
-                .opacity(selectedTab == 3 ? 1 : 0)
-                .allowsHitTesting(selectedTab == 3)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-            // Floating pill tab bar
+            SettingsTabView(
+                storeManager: storeManager,
+                accent: $themeAccent,
+                background: $themeBackground,
+                distanceUnit: $distanceUnit,
+                notificationSettings: $notificationSettings,
+                language: $appLanguage,
+                goalType: $goalType,
+                goalTarget: $goalTarget,
+                showHelpSheet: $showHelpSheet,
+                onSettingsChanged: {
+                    rescheduleNotifications()
+                    loadData()
+                    WidgetCenter.shared.reloadAllTimelines()
+                },
+                onReset: {
+                    loadData()
+                    WidgetCenter.shared.reloadAllTimelines()
+                },
+                onSyncHealthKit: syncWithHealthKit,
+                onSetGoal: { showGoalSheet = true },
+                isSyncing: isSyncing,
+                isAuthorized: isAuthorized,
+                tabBarHeight: 88
+            )
+            .opacity(selectedTab == 3 ? 1 : 0)
+            .allowsHitTesting(selectedTab == 3)
+        }
+        .ignoresSafeArea(edges: .bottom)
+        .overlay(alignment: .bottom) {
             FloatingTabBar(
                 selectedTab: $selectedTab,
                 isDark: themeBackground.isDark,
@@ -241,7 +241,6 @@ struct ContentView: View {
                 inkLow: cSub
             )
         }
-        .ignoresSafeArea(edges: .bottom)
     }
 
     // MARK: - 대시보드 탭 콘텐츠

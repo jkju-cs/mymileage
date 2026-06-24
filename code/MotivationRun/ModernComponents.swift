@@ -71,23 +71,24 @@ struct FloatingTabBar: View {
                 HStack(spacing: 0) {
                     ForEach(0..<tabs.count, id: \.self) { i in
                         let on = selectedTab == i
-                        Button(action: { withAnimation(.easeInOut(duration: 0.15)) { selectedTab = i } }) {
-                            VStack(spacing: 3) {
-                                Image(systemName: tabs[i].icon)
-                                    .font(.system(size: 20, weight: on ? .semibold : .regular))
-                                    .foregroundColor(on ? primaryColor : inkLow)
-                                Text(tabs[i].label)
-                                    .font(.pretendard(on ? .bold : .medium, size: 10))
-                                    .foregroundColor(on ? primaryColor : inkLow)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 6)
-                            .background(
-                                RoundedRectangle(cornerRadius: 14)
-                                    .fill(on ? primarySoft : Color.clear)
-                            )
+                        VStack(spacing: 3) {
+                            Image(systemName: tabs[i].icon)
+                                .font(.system(size: 20, weight: on ? .semibold : .regular))
+                                .foregroundColor(on ? primaryColor : inkLow)
+                            Text(tabs[i].label)
+                                .font(.pretendard(on ? .bold : .medium, size: 10))
+                                .foregroundColor(on ? primaryColor : inkLow)
                         }
-                        .buttonStyle(.plain)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 6)
+                        .background(
+                            RoundedRectangle(cornerRadius: 14)
+                                .fill(on ? primarySoft : Color.clear)
+                        )
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            withAnimation(.easeInOut(duration: 0.15)) { selectedTab = i }
+                        }
                     }
                 }
                 .padding(.horizontal, 8)
