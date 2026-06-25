@@ -1591,29 +1591,40 @@ struct SettingsTabView: View {
                             settingsSection(t(.proSectionTitle)) {
                                 VStack(spacing: 0) {
                                     VStack(alignment: .leading, spacing: 10) {
+                                        Text(t(.proTagline))
+                                            .font(.pretendard(.semiBold, size: 15))
+                                            .foregroundColor(background.mainText)
                                         HStack(spacing: 8) {
                                             Image(systemName: "checkmark.circle.fill")
                                                 .foregroundColor(accentColor)
                                             Text(t(.proFeaturePhoto))
                                                 .font(.pretendard(.regular, size: 15))
-                                                .foregroundColor(background.mainText)
+                                                .foregroundColor(background.subText)
                                         }
                                         HStack(spacing: 8) {
                                             Image(systemName: "checkmark.circle.fill")
                                                 .foregroundColor(accentColor)
                                             Text(t(.proFeatureLockWidget))
                                                 .font(.pretendard(.regular, size: 15))
-                                                .foregroundColor(background.mainText)
+                                                .foregroundColor(background.subText)
                                         }
                                     }
                                     .padding(.horizontal, 14).padding(.vertical, 14)
                                     rowDivider
                                     Button {
                                         Task {
-                                            let success = await storeManager.purchasePro()
-                                            if success {
+                                            switch await storeManager.purchasePro() {
+                                            case .success:
                                                 WidgetCenter.shared.reloadAllTimelines()
                                                 showSettingsToast(t(.proPurchased))
+                                            case .pending:
+                                                showSettingsToast(t(.proPending))
+                                            case .unavailable:
+                                                showSettingsToast(t(.proLoadFailed))
+                                            case .failed:
+                                                showSettingsToast(t(.proPurchaseFailed))
+                                            case .cancelled:
+                                                break
                                             }
                                         }
                                     } label: {

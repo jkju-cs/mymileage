@@ -8,6 +8,14 @@
 import Foundation
 import StoreKit
 
+enum PurchaseOutcome {
+    case success
+    case cancelled
+    case pending
+    case failed
+    case unavailable
+}
+
 @MainActor
 final class StoreManager: ObservableObject {
     static let shared = StoreManager()
@@ -17,7 +25,10 @@ final class StoreManager: ObservableObject {
 
     @Published private(set) var isPro: Bool = {
         #if targetEnvironment(simulator)
-        return true
+        // 시뮬레이터에서 Pro 섹션(업그레이드 화면)을 노출시키기 위해 false 반환.
+        // 이 분기는 시뮬레이터 빌드에서만 컴파일되며, 실기기/TestFlight/App Store 빌드는
+        // 아래 #else 분기를 타므로 실제 앱 동작에는 전혀 영향이 없음.
+        return false
         #else
         return SharedDataManager.shared.getIsPro()
         #endif
@@ -51,8 +62,9 @@ final class StoreManager: ObservableObject {
 
     // MARK: - 구매
 
-    func purchasePro() async -> Bool {
-        guard let product = proProduct else { return false }
+    func purchasePro() async -> PurchaseOutcome {
+        if proProduct == nil { await loadProduct() }
+        guard let product = proProduct else { return .unavailable }
         purchaseInProgress = true
         defer { purchaseInProgress = false }
 
@@ -63,17 +75,17 @@ final class StoreManager: ObservableObject {
                 let transaction = try checkVerified(verification)
                 await transaction.finish()
                 setProStatus(true)
-                return true
+                return .success
             case .userCancelled:
-                return false
+                return .cancelled
             case .pending:
-                return false
+                return .pending
             @unknown default:
-                return false
+                return .failed
             }
         } catch {
             print("❌ [StoreManager] 구매 실패: \(error)")
-            return false
+            return .failed
         }
     }
 

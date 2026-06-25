@@ -164,6 +164,10 @@ enum LK: String {
     case proPurchased
     case proRestored
     case proRestoreFailed
+    case proLoadFailed
+    case proPending
+    case proPurchaseFailed
+    case proTagline
     case proFeaturePhoto
     case proFeatureLockWidget
     // Data Source Filter
@@ -319,6 +323,10 @@ private enum Strings {
             .proPurchased:          "Pro unlocked! Thank you!",
             .proRestored:           "Purchase restored!",
             .proRestoreFailed:      "No previous purchase found.",
+            .proLoadFailed:         "Product unavailable. Please try again.",
+            .proPending:            "Purchase pending approval.",
+            .proPurchaseFailed:     "Purchase failed. Please try again.",
+            .proTagline:            "Customize your widgets, own your experience.",
             .proFeaturePhoto:       "Custom widget background photo",
             .proFeatureLockWidget:  "Lock screen widgets",
             .dataSourceButton:      "Data Sources",
@@ -481,6 +489,10 @@ private enum Strings {
             .proPurchased:          "Pro가 해제되었습니다! 감사합니다!",
             .proRestored:           "구매가 복원되었습니다!",
             .proRestoreFailed:      "이전 구매 내역이 없습니다.",
+            .proLoadFailed:         "상품 정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.",
+            .proPending:            "구매 승인 대기 중입니다.",
+            .proPurchaseFailed:     "구매에 실패했습니다. 다시 시도해주세요.",
+            .proTagline:            "Pro로 위젯을 완전히 내 것으로 만드세요.",
             .proFeaturePhoto:       "위젯 배경 사진 커스텀",
             .proFeatureLockWidget:  "잠금화면 위젯",
             .dataSourceButton:      "데이터 소스",
@@ -643,6 +655,10 @@ private enum Strings {
             .proPurchased:          "Pro freigeschaltet! Vielen Dank!",
             .proRestored:           "Kauf wiederhergestellt!",
             .proRestoreFailed:      "Kein vorheriger Kauf gefunden.",
+            .proLoadFailed:         "Produkt nicht verfügbar. Bitte erneut versuchen.",
+            .proPending:            "Kauf wartet auf Genehmigung.",
+            .proPurchaseFailed:     "Kauf fehlgeschlagen. Bitte erneut versuchen.",
+            .proTagline:            "Gestalte deine Widgets, mach sie zu deinem Erlebnis.",
             .proFeaturePhoto:       "Eigenes Widget-Hintergrundfoto",
             .proFeatureLockWidget:  "Sperrbildschirm-Widgets",
             .dataSourceButton:      "Datenquellen",
@@ -805,6 +821,10 @@ private enum Strings {
             .proPurchased:          "Pro débloqué ! Merci !",
             .proRestored:           "Achat restauré !",
             .proRestoreFailed:      "Aucun achat précédent trouvé.",
+            .proLoadFailed:         "Produit indisponible. Réessayez plus tard.",
+            .proPending:            "Achat en attente d'approbation.",
+            .proPurchaseFailed:     "Échec de l'achat. Veuillez réessayer.",
+            .proTagline:            "Personnalisez vos widgets, faites-en votre expérience.",
             .proFeaturePhoto:       "Photo d'arrière-plan personnalisée",
             .proFeatureLockWidget:  "Widgets d'écran de verrouillage",
             .dataSourceButton:      "Sources de données",
@@ -967,6 +987,10 @@ private enum Strings {
             .proPurchased:          "Pro 已解锁！感谢您！",
             .proRestored:           "购买已恢复！",
             .proRestoreFailed:      "未找到之前的购买记录。",
+            .proLoadFailed:         "无法加载商品信息，请稍后再试。",
+            .proPending:            "购买等待批准中。",
+            .proPurchaseFailed:     "购买失败，请重试。",
+            .proTagline:            "自定义小组件，打造专属体验。",
             .proFeaturePhoto:       "自定义小组件背景照片",
             .proFeatureLockWidget:  "锁屏小组件",
             .dataSourceButton:      "数据源",
@@ -1129,6 +1153,10 @@ private enum Strings {
             .proPurchased:          "¡Pro desbloqueado! ¡Gracias!",
             .proRestored:           "¡Compra restaurada!",
             .proRestoreFailed:      "No se encontró compra previa.",
+            .proLoadFailed:         "Producto no disponible. Inténtalo de nuevo.",
+            .proPending:            "Compra pendiente de aprobación.",
+            .proPurchaseFailed:     "Error en la compra. Inténtalo de nuevo.",
+            .proTagline:            "Personaliza tus widgets, haz tuya la experiencia.",
             .proFeaturePhoto:       "Foto de fondo personalizada",
             .proFeatureLockWidget:  "Widgets de pantalla de bloqueo",
             .dataSourceButton:      "Fuentes de datos",
